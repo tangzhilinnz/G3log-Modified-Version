@@ -1,0 +1,11 @@
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/g3log.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/package_source.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/g3log-FATAL-contract.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/g3log-FATAL-sigsegv.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/g3log-FATAL-choice.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/package.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/list_install_components.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/install/local.dir
+C:/Users/jason m/Desktop/log/g3log-master/out/build/x64-Debug/CMakeFiles/install.dir

@@ -6,3 +6,4 @@ build_clang
 build_travis
 gtest-1.7.0
 *~
+.vs

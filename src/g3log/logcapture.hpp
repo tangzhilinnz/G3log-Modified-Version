@@ -72,7 +72,7 @@ struct LogCapture {
       return _stream;
    }
 
-   std::ostringstream _stream;
+   std::ostringstream _stream; // TODO replace std::ostringstream with self-defined class
    std::string _stack_trace;
    const char* _file;
    const int _line;

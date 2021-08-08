@@ -109,6 +109,8 @@ IF ( NOT VERSION )
       execute_process(COMMAND bash "-c" "git rev-list --branches HEAD | wc -l | tr -d ' ' | tr -d '\n'" OUTPUT_VARIABLE GIT_VERSION WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
    ENDIF()
 
+   # math(EXPR <output variable> <math expression>)
+   # EXPR evaluates mathematical expression and returns result in the output variable.
    math(EXPR VERSION-BASE ${GIT_VERSION}/255)
    math(EXPR VERSION-REMAINDER ${GIT_VERSION}%255)
    message( STATUS "git build version: ${GIT_VERSION}" )
@@ -197,7 +199,7 @@ if(NOT MSVC)
          It is a good idea to purge your build directory of CMake
          generated cache files
       *******************************************************************
-       ")
+  ")
   # CMAKE_COMMAND
   # This is the full path to the CMake executable cmake which is useful 
   # from custom commands that want to use the cmake -E option for portable 

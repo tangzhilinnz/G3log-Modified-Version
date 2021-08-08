@@ -53,5 +53,5 @@ if(NOT "${current_content}" STREQUAL "${generated_content}")
 endif()
 
 # copy all .hpp files from src to build directory (${CMAKE_CURRENT_BINARY_DIR}/include/g3log/) 
-file(GLOB PUBLIC_HEADERS "${g3log_SOURCE_DIR}/src/g3log/*.hpp")
-file(COPY ${PUBLIC_HEADERS} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/include/g3log/")
+# file(GLOB PUBLIC_HEADERS "${g3log_SOURCE_DIR}/src/g3log/*.hpp")
+# file(COPY ${PUBLIC_HEADERS} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/include/g3log/")

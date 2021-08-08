@@ -151,6 +151,7 @@ IF (MSVC OR MINGW)
    ENDIF(DEBUG_BREAK_AT_FATAL_SIGNAL)
 
 ENDIF (MSVC OR MINGW)
+
 message( STATUS "\n\n\n" )
 
 option(INSTALL_G3LOG "Enable installation of g3log. (Projects embedding g3log may want to turn this OFF.)" ON)

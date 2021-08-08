@@ -102,7 +102,7 @@ SET_TARGET_PROPERTIES(${G3LOG_LIBRARY} PROPERTIES
    CLEAN_DIRECT_OUTPUT 1
    SOVERSION ${MAJOR_VERSION}
    VERSION ${VERSION}
-   )
+)
 
 
 # APPLE: Set to True when the target system is an Apple platform
@@ -111,7 +111,7 @@ SET_TARGET_PROPERTIES(${G3LOG_LIBRARY} PROPERTIES
 # This indicates the shared library is to be found at runtime using 
 # runtime paths (rpaths).
 IF(APPLE)
-SET_TARGET_PROPERTIES(${G3LOG_LIBRARY} PROPERTIES MACOSX_RPATH TRUE)
+   SET_TARGET_PROPERTIES(${G3LOG_LIBRARY} PROPERTIES MACOSX_RPATH TRUE)
 ENDIF()
 
 # require here some proxy for c++14 standard to avoid problems TARGET_PROPERTY CXX_STANDARD
@@ -135,42 +135,42 @@ TARGET_LINK_LIBRARIES(${G3LOG_LIBRARY} Threads::Threads )
 
 # check for backtrace and cxa_demangle only in non-Windows dev environments
 IF(NOT(MSVC OR MINGW))
-	# the backtrace module does not provide a modern cmake target
-	FIND_PACKAGE(Backtrace REQUIRED)
-    # Backtrace_FOUND: Is set if and only if backtrace support detected.
-    # Backtrace_INCLUDE_DIRS: The include directories needed to use backtrace header.
-    # Backtrace_LIBRARIES: The libraries (linker flags) needed to use backtrace, if any.
-	if(Backtrace_FOUND)
-	  TARGET_INCLUDE_DIRECTORIES(${G3LOG_LIBRARY} PRIVATE ${Backtrace_INCLUDE_DIRS})
-	  TARGET_LINK_LIBRARIES(${G3LOG_LIBRARY} ${Backtrace_LIBRARIES})
-	else()
-	  message( FATAL_ERROR "Could not find Library to create backtraces")
-	endif()
+   # the backtrace module does not provide a modern cmake target
+   FIND_PACKAGE(Backtrace REQUIRED)
+   # Backtrace_FOUND: Is set if and only if backtrace support detected.
+   # Backtrace_INCLUDE_DIRS: The include directories needed to use backtrace header.
+   # Backtrace_LIBRARIES: The libraries (linker flags) needed to use backtrace, if any.
+   if(Backtrace_FOUND)
+      TARGET_INCLUDE_DIRECTORIES(${G3LOG_LIBRARY} PRIVATE ${Backtrace_INCLUDE_DIRS})
+      TARGET_LINK_LIBRARIES(${G3LOG_LIBRARY} ${Backtrace_LIBRARIES})
+   else()
+      message( FATAL_ERROR "Could not find Library to create backtraces")
+   endif()
 
+   INCLUDE(CheckLibraryExists)
+   INCLUDE(CheckCXXSymbolExists)
 
-	INCLUDE(CheckLibraryExists)
-	INCLUDE(CheckCXXSymbolExists)
+   #if demangle is in c++ runtime lib
+   # CHECK_CXX_SYMBOL_EXISTS( <symbol> <files> <variable> )
+   # Check that the <symbol> is available after including the given header <files>
+   # and store the result in a <variable>.
+   # CHECK_LIBRARY_EXISTS( <LIBRARY> <FUNCTION> <LOCATION> <VARIABLE> )
+   #   LIBRARY  - the name of the library you are looking for
+   #   FUNCTION - the name of the function
+   #   LOCATION - location where the library should be found
+   #   VARIABLE - variable to store the result that will be created as an
+   #              internal cache variable.
+   CHECK_CXX_SYMBOL_EXISTS(abi::__cxa_demangle "cxxabi.h" DEMANGLE_EXISTS)
+   IF( NOT (DEMANGLE_EXISTS))
+      #try to link against c++abi to get demangle
+      CHECK_LIBRARY_EXISTS(c++abi abi::__cxa_demangle "cxxabi.h" NEED_C++ABI)
+      IF( NEED_C++ABI)
+         TARGET_LINK_LIBRARIES(${G3LOG_LIBRARY} c++abi)
+      ELSE()
+         message( FATAL_ERROR "Could not find function abi::__cxa_demangle")
+      ENDIF()
 
-	#if demangle is in c++ runtime lib
-    # CHECK_CXX_SYMBOL_EXISTS( <symbol> <files> <variable> )
-    # Check that the <symbol> is available after including the given header <files> 
-    # and store the result in a <variable>.
-    # CHECK_LIBRARY_EXISTS( <LIBRARY> <FUNCTION> <LOCATION> <VARIABLE> )
-    #   LIBRARY  - the name of the library you are looking for
-    #   FUNCTION - the name of the function
-    #   LOCATION - location where the library should be found
-    #   VARIABLE - variable to store the result that will be created as an 
-    #              internal cache variable.
-	CHECK_CXX_SYMBOL_EXISTS(abi::__cxa_demangle "cxxabi.h" DEMANGLE_EXISTS)
-	IF( NOT (DEMANGLE_EXISTS))
-	   #try to link against c++abi to get demangle
-	   CHECK_LIBRARY_EXISTS(c++abi abi::__cxa_demangle "cxxabi.h" NEED_C++ABI)
-	   IF( NEED_C++ABI)
-	      TARGET_LINK_LIBRARIES(${G3LOG_LIBRARY} c++abi)
-	   ELSE()
-	   message( FATAL_ERROR "Could not find function abi::__cxa_demangle")
-	   ENDIF()
-	endif()
+   ENDIF()
 ENDIF()
 
 # add Warnings

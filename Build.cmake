@@ -218,3 +218,11 @@ TARGET_COMPILE_OPTIONS(${G3LOG_LIBRARY} PRIVATE
    $<$<CXX_COMPILER_ID:MSVC>:/utf-8> # source code already in utf-8, force it for compilers in non-utf8_windows_locale
    $<$<CXX_COMPILER_ID:MSVC>:$<$<EQUAL:4,${CMAKE_SIZEOF_VOID_P}>:/arch:IA32>>
 )
+
+# copy .hpp files from src to build directory (include) for the convenient including by other targets
+foreach(CurrentHeaderFile IN LISTS HEADER_FILES)
+   add_custom_command(
+      TARGET ${G3LOG_LIBRARY} PRE_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CurrentHeaderFile} "${CMAKE_CURRENT_BINARY_DIR}/include/g3log/"
+      COMMENT "Copying header: ${CurrentHeaderFile}")
+endforeach()

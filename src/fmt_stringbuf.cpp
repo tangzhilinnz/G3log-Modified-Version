@@ -3,13 +3,18 @@
 #include <stdarg.h> // va_list and its operations
 #include <stdint.h> // various type definitions
 #include <sys/types.h>
-#include <ctype.h>
+#include <ctype.h> // https://www.tutorialspoint.com/c_standard_library/ctype_h.htm
 #include <string.h>
 #include <math.h>
 #include <limits.h>
 //#include <endian.h> // __BYTE_ORDER, __LITTLE_ENDIAN　
 
 #include "g3log/fmt_stringbuf.hpp"
+
+#if defined(_MSC_VER)
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
 #define DOUBLE_ZERO double(1E-307) //10^(-307)
 #define IS_DOUBLE_ZERO(D) (D <= DOUBLE_ZERO && D >= -DOUBLE_ZERO)
@@ -36,6 +41,10 @@
 
 #ifndef va_end
 #define va_end(AP)              (AP = (va_list)0 )
+#endif
+
+#ifndef pid_t
+typedef int pid_t;
 #endif
 
 // cpymem returns the next position of dst after calling memcpy

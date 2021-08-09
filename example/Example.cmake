@@ -19,6 +19,7 @@
    #  Leaving it to ON will create 
    #                        g3log-FATAL-sigsegv
    #                        g3log-FATAL-contract
+   #                        g3log-FATAL-choice
    #
    # ==============================================================
 

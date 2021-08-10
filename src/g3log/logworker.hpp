@@ -26,7 +26,7 @@
 namespace g3 {
    class LogWorker;
    struct LogWorkerImpl;
-   using FileSinkHandle = g3::SinkHandle<g3::FileSink>;
+   // using FileSinkHandle = g3::SinkHandle<g3::FileSink>;
 
    /// Background side of the LogWorker. Internal use only
    struct LogWorkerImpl final {
@@ -77,15 +77,17 @@ namespace g3 {
        Example:
        using namespace g3;
        std::unique_ptr<LogWorker> logworker {LogWorker::createLogWorker()};
-       auto handle = addDefaultLogger("my_test_log", "/tmp");
+       auto sinkHandle = addDefaultLogger("my_test_log", "/tmp");
        initializeLogging(logworker.get()); // ref. g3log.hpp
 
        std::future<std::string> log_file_name = sinkHandle->call(&FileSink::fileName);
        std::cout << "The filename is: " << log_file_name.get() << std::endl;
        //   something like: /tmp/my_test_log.g3log.20150819-100300.log
        */
-      // using FileSinkHandle = SinkHandle<FileSink>;
-      std::unique_ptr<FileSinkHandle> addDefaultLogger(const std::string& log_prefix, const std::string& log_directory, const std::string& default_id = "g3log");
+
+      // std::unique_ptr<FileSinkHandle>
+      std::unique_ptr<g3::SinkHandle<g3::FileSink>> addDefaultLogger(
+         const std::string& log_prefix, const std::string& log_directory, const std::string& default_id = "g3log");
 
       /// Adds a sink and returns the handle for access to the sink
       /// @param real_sink unique_ptr ownership is passed to the log worker

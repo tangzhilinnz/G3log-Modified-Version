@@ -79,6 +79,11 @@ namespace g3 {
       // Save the first uninitialized message, if any
       std::call_once(g_save_first_uninitialized_flag, [&bgworker] {
          if (g_first_uninitialized_msg) {
+            // typedef MoveOnCopy<std::unique_ptr<g3::LogMessage>> LogMessagePtr;
+            // explicit MoveOnCopy(Moveable &&m) : _move_only(std::move(m)) {}
+            // Disambiguate with the universal initialisation syntax { ... } to 
+            // create a temporary MoveOnCopy object, as long as MoveOnCopy class
+            // doesn't have a constructor that takes an initializer_list
             bgworker->save(LogMessagePtr {std::move(g_first_uninitialized_msg)});
          }
       });
@@ -133,8 +138,10 @@ namespace g3 {
       }
 
       /**
-       * Shutdown the logging by making the pointer to the background logger to nullptr. The object is not deleted
-       * that is the responsibility of its owner. *
+       * Shutdown the logging by making the pointer to the background logger to nullptr.
+       * The object is not deleted that is the responsibility of its owner.
+       * 
+       * Cannot invoke g3::internal::shutDownLogging() manually in your own project.
        */
       void shutDownLogging() {
          std::lock_guard<std::mutex> lock(g_logging_init_mutex);
@@ -168,6 +175,10 @@ namespace g3 {
       void saveMessage(const char* entry, const char* file, int line, const char* function, const LEVELS& level,
                        const char* boolean_expression, int fatal_signal, const char* stack_trace) {
          LEVELS msgLevel {level};
+         // explicit MoveOnCopy(Moveable &&m) : _move_only(std::move(m)) {}
+         // std::move is implicitly applied to local objects being returned.
+         // A local std::unique_ptr<LogMessage> object is returned by calling 
+         // std::make_unique<LogMessage>( .. )
          LogMessagePtr message {std::make_unique<LogMessage>(file, line, function, msgLevel)};
          message.get()->write().append(entry);
          message.get()->setExpression(boolean_expression);
@@ -186,7 +197,7 @@ namespace g3 {
             // then it's possible that the "other" fatal stack trace will be shown
             // that's OK since it was anyhow the first crash detected
             // 
-            // Since C++11, unction-local statics are guaranteed to be initialized 
+            // Since C++11, function-local statics are guaranteed to be initialized 
             // only once in a thread-safe manner.
             // If multiple threads attempt to initialize the same static local variable 
             // concurrently, the initialization occurs exactly once (similar behavior 
@@ -201,6 +212,10 @@ namespace g3 {
                        "A recursive crash detected. It is likely the hook set with 'setFatalPreLoggingHook(...)' is responsible\n\n")
                .append("---First crash stacktrace: ").append(first_stack_trace).append("\n---End of first stacktrace\n");
             }
+            // typedef MoveOnCopy<std::unique_ptr<FatalMessage>> FatalMessagePtr;
+            // explicit MoveOnCopy(Moveable &&m) : _move_only(std::move(m)) {}
+            // FatalMessage::FatalMessage(const LogMessage& details, g3::SignalType signal_id)
+            //    : LogMessage(details), _signal_id(signal_id) { }
             FatalMessagePtr fatal_message { std::make_unique<FatalMessage>(*(message._move_only.get()), fatal_signal) };
             // At destruction, flushes fatal message to g3LogWorker
             // either we will stay here until the background worker has received the fatal

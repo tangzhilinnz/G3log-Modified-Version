@@ -151,8 +151,12 @@ namespace g3 {
    }
 
 
-// By copy, not by reference. See this explanation for details:
-// http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
+   // By copy, not by reference. See this explanation for details:
+   // http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
+   // Now, if other is being initialized with an rvalue, it will be 
+   // move-constructed. Perfect. C++11 will automatically pick the 
+   // move-constructor when appropriate as well. (And, of course, 
+   // the copying/moving of the value may simply be elided altogether.)
    LogMessage& LogMessage::operator=(LogMessage other) {
       swap(*this, other);
       return *this;
@@ -194,7 +198,7 @@ namespace g3 {
       , _message(other._message) {
    }
 
-   LogMessage::LogMessage(LogMessage&& other)
+   LogMessage::LogMessage(LogMessage&& other) // Instances of LogMessage are MoveConstructible
       : _logDetailsToStringFunc(other._logDetailsToStringFunc)
       , _timestamp(other._timestamp)
       , _call_thread_id(other._call_thread_id)

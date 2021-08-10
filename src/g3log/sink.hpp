@@ -48,7 +48,7 @@ namespace internal {
          , _real_sink {std::move(sink)}
          , _bg(kjellkod::Active::createActive())
          , _default_log_call(std::bind(call, _real_sink.get(), std::placeholders::_1)) 
-      { } // a Sink with LogMessageMover object receiving call
+      { } // a Sink with LogMessageMover object receiving call (class T member function)
 
 
       Sink(std::unique_ptr<T> sink, void(T::*Call)(std::string) )
@@ -62,7 +62,7 @@ namespace internal {
          _default_log_call = [ = ](LogMessageMover m) {
             adapter(m.get().toString());
          };
-      } // a Sink with a LogEntry (string) receiving call
+      } // a Sink with a LogEntry (string) receiving call (class T member function)
 
       virtual ~Sink() {
          _bg.reset(); // TODO: to remove
@@ -81,7 +81,7 @@ namespace internal {
       template<typename Call, typename... Args>
       auto async(Call call, Args &&... args) -> std::future<std::invoke_result_t<decltype(call), T*, Args...>> {
          return g3::spawn_task(std::bind(call, _real_sink.get(), std::forward<Args>(args)...), _bg.get());
-      }
+      } // The type of Call must be a member function type of class T
    };
 
 

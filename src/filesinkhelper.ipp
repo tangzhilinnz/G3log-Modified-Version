@@ -117,7 +117,7 @@ namespace g3 {
          return ss_entry.str();
       }
 
-      std::string createLogFileName(const std::string &verified_prefix, const std::string &logger_id) {
+      std::string createLogFileName(const std::string& verified_prefix, const std::string& logger_id) {
          std::stringstream oss_name;
          oss_name << verified_prefix << ".";
          if( logger_id != "" ) {

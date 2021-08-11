@@ -26,7 +26,7 @@ IF (MSVC OR MINGW)
 ELSE()
    # list(REMOVE_ITEM SRC_FILES  ${LOG_SRC}/crashhandler_windows.cpp ${LOG_SRC}/g3log/stacktrace_windows.hpp ${LOG_SRC}/stacktrace_windows.cpp)
    list(REMOVE_ITEM SRC_FILES  ${LOG_SRC}/crashhandler_windows.cpp  ${LOG_SRC}/stacktrace_windows.cpp)
-   list(REMOVE_ITEM HEADER_FILES  ${LOG_SRC}/g3log/stacktrace_windows.hpp)
+   list(REMOVE_ITEM HEADER_FILES  ${LOG_SRC}/g3log/stacktrace_windows.hpp  ${LOG_SRC}/g3log/stlpatch_future.hpp)
 
 ENDIF (MSVC OR MINGW)
 

@@ -92,7 +92,7 @@ namespace g3 {
       /// Adds a sink and returns the handle for access to the sink
       /// @param real_sink unique_ptr ownership is passed to the log worker
       /// @param call the default call that should receive either a std::string or a LogMessageMover message
-      ///             and be a member function of pointer class T 
+      ///             and be a member function pointer of class T 
       /// @return handle to the sink for API access. See usage example below at @ref addDefaultLogger
       template<typename T, typename DefaultLogCall>
       std::unique_ptr<g3::SinkHandle<T>> addSink(std::unique_ptr<T> real_sink, DefaultLogCall call) {

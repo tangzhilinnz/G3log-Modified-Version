@@ -82,8 +82,9 @@ namespace g3 {
             // typedef MoveOnCopy<std::unique_ptr<g3::LogMessage>> LogMessagePtr;
             // explicit MoveOnCopy(Moveable &&m) : _move_only(std::move(m)) {}
             // Disambiguate with the universal initialisation syntax { ... } to 
-            // create a temporary MoveOnCopy object, as long as MoveOnCopy class
-            // doesn't have a constructor that takes an initializer_list
+            // create a temporary MoveOnCopy<LogMessage> object, as long as 
+            // MoveOnCopy<LogMessage> class doesn't have a constructor that takes
+            // an initializer_list
             bgworker->save(LogMessagePtr {std::move(g_first_uninitialized_msg)});
          }
       });

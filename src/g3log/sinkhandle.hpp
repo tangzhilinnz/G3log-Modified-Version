@@ -22,7 +22,7 @@ namespace g3 {
    // The real sink will be owned by g3log. If the real sink is deleted
    // calls to sink's API through the SinkHandle will return an exception embedded
    // in the resulting future. Ref: SinkHandle::call
-   template<class T>
+   template<class T> // (T can be instantiated by g3::FileSink)
    class SinkHandle {
       std::weak_ptr<internal::Sink<T>> _sink;
 
@@ -34,7 +34,7 @@ namespace g3 {
       // Constructs new weak_ptr which shares an object managed by r. If r 
       // manages no object, *this manages no object too. The templated 
       // overloads don't participate in the overload resolution unless 
-      // Y* is implicitly convertible to T*
+      // Y* is implicitly convertible to T* (where T is shared_ptr's template parameter)
       SinkHandle(std::shared_ptr<internal::Sink<T>> sink)
          : _sink(sink) {}
 
@@ -53,9 +53,9 @@ namespace g3 {
       // Y* must be implicitly convertible to T*. (until C++17) This overload 
       // participates in overload resolution only if Y* is compatible with T*. 
       // (since C++17) Note that r.lock() may be used for the same purpose: 
-      // the difference is that this constructor throws an exception if the 
-      // argument is empty, while std::weak_ptr<T>::lock() constructs an empty 
-      // std::shared_ptr in that case.
+      // the difference is that this constructor throws an bad_weak_ptr 
+      // exception if the argument is empty, while std::weak_ptr<T>::lock() 
+      // constructs an empty std::shared_ptr in that case.
       template<typename AsyncCall, typename... Args>
       auto call(AsyncCall func , Args&& ... args) -> std::future<std::invoke_result_t<decltype(func), T*, Args...>> {
          try {
@@ -67,7 +67,7 @@ namespace g3 {
             promise.set_exception(std::make_exception_ptr(e));
             return std::move(promise.get_future());
          }
-      }
+      } // func must be a member function pointer of class T (e.g., g3::FileSink)
 
       /// Get weak_ptr access to the sink(). Make sure to check that the returned pointer is valid,
       /// auto p = sink(); auto ptr = p.lock(); if (ptr) { .... }
@@ -79,6 +79,9 @@ namespace g3 {
       // Effectively returns expired() ? shared_ptr<T>() : shared_ptr<T>(*this), 
       // executed atomically.
       std::weak_ptr<internal::Sink<T>> sink() {
+         // shared_ptr objects can be assigned to weak_ptr objects directly, 
+         // but in order to assign a weak_ptr object to a shared_ptr it shall
+         // be done using member lock.
          return _sink.lock();
       }
    };

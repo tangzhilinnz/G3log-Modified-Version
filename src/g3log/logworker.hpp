@@ -37,7 +37,6 @@ namespace g3 {
       LogWorkerImpl();
       ~LogWorkerImpl() = default;
 
-      // void bgSave(g3::LogMessagePtr msgPtr);
       void bgSave(LogMessagePtr msgPtr);
       void bgFatal(FatalMessagePtr msgPtr);
 
@@ -47,7 +46,8 @@ namespace g3 {
 
 
    /// Front end of the LogWorker.  API that is useful is
-   /// addSink( sink, default_call ) which returns a handle to the sink. See below and README for usage example
+   /// addSink( sink, default_call ) which returns a handle to the sink (sinkHandle object). 
+   /// See below and README for usage example
    /// save( msg ) : internal use
    /// fatal ( fatal_msg ) : internal use
    class LogWorker final {
@@ -92,13 +92,19 @@ namespace g3 {
       /// Adds a sink and returns the handle for access to the sink
       /// @param real_sink unique_ptr ownership is passed to the log worker
       /// @param call the default call that should receive either a std::string or a LogMessageMover message
+      ///             and be a member function of pointer class T 
       /// @return handle to the sink for API access. See usage example below at @ref addDefaultLogger
       template<typename T, typename DefaultLogCall>
       std::unique_ptr<g3::SinkHandle<T>> addSink(std::unique_ptr<T> real_sink, DefaultLogCall call) {
          using namespace g3;
          using namespace g3::internal;
+         // Sink<T>::Sink
+         // template<typename DefaultLogCall >
+         // Sink(std::unique_ptr<T> sink, DefaultLogCall call)
          auto sink = std::make_shared<Sink<T>> (std::move(real_sink), call); // new Sink<T> shared_ptr
          addWrappedSink(sink);
+         // SinkHandle<T>::SinkHandle
+         // SinkHandle(std::shared_ptr<internal::Sink<T>> sink)
          return std::make_unique<SinkHandle<T>> (sink); // new SinkHandle<T> unique_ptr
       }
 

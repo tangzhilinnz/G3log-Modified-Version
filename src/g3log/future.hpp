@@ -43,9 +43,8 @@ namespace g3 {
    //  auto future_msg = g3::spawn_task(msg_call, bgWorker.get());
 
    template <typename Func, class BgWorker> // std::future is not CopyAssignable.
-   std::future<std::invoke_result_t<Func>> spawn_task(Func func, BgWorker* worker)
-   {
-      // It is obvious that Func has no argument and may has a return value or no return.
+   std::future<std::invoke_result_t<Func>> spawn_task(Func func, BgWorker* worker) {
+      // You must ensure that func has no argument and may has a return value or no return.
       // worker is Active* type that can be retrieved by std::unique_ptr<T,Deleter>::get
       typedef std::invoke_result_t<Func> result_type;
       typedef std::packaged_task<result_type()> task_type;
@@ -67,6 +66,8 @@ namespace g3 {
       // (function, lambda expression, bind expression, or another function object) 
       // so that it can be invoked asynchronously. Its return value or exception thrown 
       // is stored in a shared state which can be accessed through std::future objects.
+      // template <class F>
+      // explicit packaged_task( F&& f );
       task_type task(std::move(func));
 
       std::future<result_type> result = task.get_future();

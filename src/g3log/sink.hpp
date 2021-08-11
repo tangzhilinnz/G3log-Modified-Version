@@ -30,6 +30,7 @@ namespace internal {
    // The Sink will wrap either
    //     a Sink with Message object receiving call
    // or  a Sink with a LogEntry (string) receiving call
+   // (e.g., g3::FileSink and g3::FileSink::fileWrite)
    //
    // The Sink can also be used through the SinkHandler to call Sink specific function calls
    // Ref: send(Message) deals with incoming log entries (converted if necessary to string)
@@ -48,7 +49,7 @@ namespace internal {
          , _real_sink {std::move(sink)}
          , _bg(kjellkod::Active::createActive())
          , _default_log_call(std::bind(call, _real_sink.get(), std::placeholders::_1)) 
-      { } // a Sink with LogMessageMover object receiving call (class T member function)
+      { } // a Sink with LogMessageMover object receiving call (that is a member function pointer of class T)
 
 
       Sink(std::unique_ptr<T> sink, void(T::*Call)(std::string) )
@@ -62,7 +63,7 @@ namespace internal {
          _default_log_call = [ = ](LogMessageMover m) {
             adapter(m.get().toString());
          };
-      } // a Sink with a LogEntry (string) receiving call (class T member function)
+      } // a Sink with a LogEntry (string) receiving call (that is a member function pointer of class T)
 
       virtual ~Sink() {
          _bg.reset(); // TODO: to remove
@@ -81,7 +82,7 @@ namespace internal {
       template<typename Call, typename... Args>
       auto async(Call call, Args &&... args) -> std::future<std::invoke_result_t<decltype(call), T*, Args...>> {
          return g3::spawn_task(std::bind(call, _real_sink.get(), std::forward<Args>(args)...), _bg.get());
-      } // The type of Call must be a member function type of class T
+      } // call must be a member function pointer of class T
    };
 
 

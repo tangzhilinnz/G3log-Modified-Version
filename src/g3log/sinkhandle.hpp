@@ -67,7 +67,7 @@ namespace g3 {
             promise.set_exception(std::make_exception_ptr(e));
             return std::move(promise.get_future());
          }
-      } // func must be a member function pointer of class T (e.g., g3::FileSink)
+      } // func must be a member function pointer of class T
 
       /// Get weak_ptr access to the sink(). Make sure to check that the returned pointer is valid,
       /// auto p = sink(); auto ptr = p.lock(); if (ptr) { .... }

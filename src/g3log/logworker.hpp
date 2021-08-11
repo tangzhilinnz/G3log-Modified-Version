@@ -102,6 +102,7 @@ namespace g3 {
          // template<typename DefaultLogCall >
          // Sink(std::unique_ptr<T> sink, DefaultLogCall call)
          auto sink = std::make_shared<Sink<T>> (std::move(real_sink), call); // new Sink<T> shared_ptr
+         // void LogWorker::addWrappedSink(std::shared_ptr<g3::internal::SinkWrapper> sink)
          addWrappedSink(sink);
          // SinkHandle<T>::SinkHandle
          // SinkHandle(std::shared_ptr<internal::Sink<T>> sink)

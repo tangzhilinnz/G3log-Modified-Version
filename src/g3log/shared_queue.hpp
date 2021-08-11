@@ -26,7 +26,7 @@
 template<typename T>
 class shared_queue
 {
-   std::queue<T> queue_;
+   std::queue<T> queue_; // TODO, lock free queue
    mutable std::mutex m_;
    std::condition_variable data_cond_;
 

@@ -178,12 +178,7 @@ namespace g3 {
          // function for sig, raise executes that function. If no handler 
          // function has been installed, the default action associated with
          // the signal value sig is taken, as follows.
-         // Signal     Meaning                                  Default
-         // SIGABRT    Abnormal termination                     Terminates the calling program with exit code 3
-         // SIGFPE     Floating-point error                     Terminates the calling program
-         // SIGILL     Illegal instruction                      Terminates the calling program
-         // SIGSEGV	   Illegal storage access	                Terminates the calling program
-         // SIGTERM	   Termination request sent to the program	Ignores the signal
+         // By default, signal terminates the calling program with exit code 3
          raise(signal_number);
       }
 

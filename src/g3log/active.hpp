@@ -53,7 +53,7 @@ namespace kjellkod {
          // std::thread join()
          // Blocks the current thread until the thread identified by *this 
          // finishes its execution. The completion of the thread identified 
-         // by* this synchronizes with the corresponding successful return 
+         // by *this synchronizes with the corresponding successful return 
          // from join().
          // No synchronization is performed on *this itself. Concurrently 
          // calling join() on the same thread object from multiple threads 

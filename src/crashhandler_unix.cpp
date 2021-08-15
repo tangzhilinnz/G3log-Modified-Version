@@ -50,26 +50,30 @@ namespace {
    std::map<int, std::string> gSignals = kSignals;
    std::map<int, struct sigaction> gSavedSigActions;
 
-   bool shouldDoExit() {
-      static std::atomic<uint64_t> firstExit{0};
-      auto const count = firstExit.fetch_add(1, std::memory_order_relaxed);
-      return (0 == count);
-   }
+   //bool shouldDoExit() {
+   //   static std::atomic<uint64_t> firstExit{0};
+   //   auto const count = firstExit.fetch_add(1, std::memory_order_relaxed);
+   //   return /*(0 == count)*/(2 >= count);
+   //}
 
    // Dump of stack,. then exit through g3log background worker
    // ALL thanks to this thread at StackOverflow. Pretty much borrowed from:
    // Ref: http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes
    void signalHandler(int signal_number, siginfo_t* /*info*/, void* /*unused_context*/) {
 
-      // Only one signal will be allowed past this point
-      if (false == shouldDoExit()) {
-         while (true) {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
-         }
-      }
-
+      // Only three/one signal will be allowed past this point
+      //if (false == shouldDoExit()) {
+      //   while (true) {
+      //      std::this_thread::sleep_for(std::chrono::seconds(1));
+      //   }
+      //}
+      // allow any number of signals that can be captured this handler before one fatal crash
       using namespace g3::internal;
       {
+         //=============================== for test =================================
+         /*std::cout << "entering handler: " << std::this_thread::get_id() << std::endl;*/
+         //=============================== for test =================================
+
          const auto dump = stackdump();
          std::ostringstream fatal_stream;
          const auto fatal_reason = exitReasonName(g3::internal::FATAL_SIGNAL, signal_number);
@@ -78,6 +82,11 @@ namespace {
          fatal_stream << "\n***** SIGNAL " << fatal_reason << "(" << signal_number << ")" << std::endl;
          LogCapture trigger(FATAL_SIGNAL, static_cast<g3::SignalType>(signal_number), dump.c_str());
          trigger.stream() << fatal_stream.str();
+
+         //=============================== for test =================================
+         /*std::cout << "exiting handler: " << std::this_thread::get_id() << std::endl;*/
+         //=============================== for test =================================
+
       } // message sent to g3LogWorker
       // wait to die
    }
@@ -88,31 +97,43 @@ namespace {
    void installSignalHandler() {
 #if !(defined(DISABLE_FATAL_SIGNALHANDLING))
       struct sigaction action;
-      // sigemptyset simply initializes the signalmask to empty, 
-      // such that it is guaranteed that no signal would be masked. 
-      // (that is, all signals will be received)
-      // The sa_mask field allows us to specify a set of signals that aren¡¯t 
-      // permitted to interrupt execution of this handler. In addition, the 
-      // signal that caused the handler to be invoked is automatically added 
-      // to the process signal mask if SA_NODEFER is not set in sa_flags.
+      // sa_mask: specifies a mask of signals which should be blocked
+      // (i.e., added to the signal mask of the thread in which the signal
+      // handler is invoked) during execution of the signal handler.
+      // In addition, the signal which triggered the handler will be blocked
+      // (automatically added to the signal mask of the thread in which the
+      // signal handler is invokerd), unless the SA_NODEFER flag 
+      // is used.
+      // When the signal handler is invoked, any signals in sa_mask that
+      // are not currently part of the signal mask (thread/process) are 
+      // automatically added to the signal mask before the handler is called. 
+      // These signals remain in the signal mask until the signal handler 
+      // returns, at which time they are automatically removed.
+      // In multi-threaded processes, each thread has its own signal mask 
+      // and there is no single process signal mask.
+      // The sa_mask field specified in act is not allowed to block SIGKILL 
+      // or SIGSTOP. Any attempt to do so will be silently ignored.
       sigemptyset(&action.sa_mask);
+      // sigaddset(&action.sa_mask, SIGSEGV);
+
       // Use the sa_sigaction field because the handles has two additional parameters 
       action.sa_sigaction = &signalHandler; // callback to crashHandler for fatal signals
       // sigaction to use sa_sigaction file. ref: 
       // http://www.linuxprogrammingblog.com/code-examples/sigaction
-      action.sa_flags = SA_SIGINFO; // SA_NODEFER, SA_RESETHAND
+      action.sa_flags = SA_SIGINFO /*| SA_NODEFER*//* | SA_RESETHAND*/;
       // The SA_SIGINFO flag tells sigaction() to use the sa_sigaction field, 
       // not sa_handler
       // By default, while signal is being handled it is masked, so it can't be
-      // triggered recursively. If masked signal is triggered by program execution
-      // (invalid memory access, segfault, division by 0 etc.), the behavior is 
-      // undefined (it usually causes process to crash)
+      // triggered recursively in signal handlers. If masked signal is triggered 
+      // by program execution (invalid memory access, segfault, division by 0 etc.),
+      // the behavior is undefined.
       // If SIGBUS, SIGFPE, SIGILL, or SIGSEGV are generated while they are 
       // blocked, the result is undefined, unless the signal was generated by
-      // kill(), sigqueue(), or raise().
+      // kill, sigqueue, or raise.
       // With SA_NODEFER there is no masking, so signal can be handled recursively
       // until stack overflows. And adding SA_RESETHAND would restore default action.
-      // 
+      // (sa_flags regulates how to handle signals to this process)
+       
       // do it verbose style - install all signal actions
       for (const auto& sig_pair : gSignals) {
          struct sigaction old_action;
@@ -191,7 +212,7 @@ namespace g3 {
          size_t size = backtrace(dump, max_dump_size);
          char** messages = backtrace_symbols(dump, static_cast<int>(size)); // overwrite sigaction with caller's address
 
-         // dump stack: skip first frame, since that is here
+         // dump stack: skip first frame, since that is here (stackdump)
          std::ostringstream oss;
          for (size_t idx = 1; idx < size && messages != nullptr; ++idx) {
             // e.g. non-static function -> ./prog(myfunc3+0x5c) [0x80487f0] 
@@ -215,7 +236,7 @@ namespace g3 {
                *offset_begin++ = '\0';
                *offset_end++ = '\0';
 
-               int status;
+               int status = -1;
                // https://gcc.gnu.org/onlinedocs/libstdc++/libstdc++-html-USERS-4.3/a01696.html
                char* real_name = abi::__cxa_demangle(mangled_name, 0, 0, &status);
                // if demangling is successful, output the demangled function name
@@ -240,6 +261,11 @@ namespace g3 {
             }
          } // END: for(size_t idx = 1; idx < size && messages != nullptr; ++idx)
          free(messages);
+
+         //===================== for test ====================
+         /*oss << "thread_id: " << std::this_thread::get_id();*/
+         //===================== for test ====================
+
          return oss.str();
       }
 

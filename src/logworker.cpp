@@ -70,8 +70,9 @@ namespace g3 {
       // All sinks are forced to receive the fatal message above before we continue
       _sinks.clear(); // flush all queues and destroy all sinks dynamcially allocated
       // this will be the last message. Only the active logworker can receive a FATAL call so it's
-      // safe to shutdown logging now
-      g3::internal::shutDownLogging();
+      // safe to shutdown logging now. 
+      // Abandon shutDownLogging() here to reduce uncertainties in multi-threaded processes
+      /*g3::internal::shutDownLogging();*/
       internal::exitWithDefaultSignalHandler(level, fatal_id);
 
       // should never reach this point

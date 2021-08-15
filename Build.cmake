@@ -26,7 +26,7 @@ IF (MSVC OR MINGW)
 ELSE()
    # list(REMOVE_ITEM SRC_FILES  ${LOG_SRC}/crashhandler_windows.cpp ${LOG_SRC}/g3log/stacktrace_windows.hpp ${LOG_SRC}/stacktrace_windows.cpp)
    list(REMOVE_ITEM SRC_FILES  ${LOG_SRC}/crashhandler_windows.cpp  ${LOG_SRC}/stacktrace_windows.cpp)
-   list(REMOVE_ITEM HEADER_FILES  ${LOG_SRC}/g3log/stacktrace_windows.hpp  ${LOG_SRC}/g3log/stlpatch_future.hpp)
+   list(REMOVE_ITEM HEADER_FILES  ${LOG_SRC}/g3log/stacktrace_windows.hpp)
 
 ENDIF (MSVC OR MINGW)
 
@@ -184,6 +184,9 @@ target_compile_options(${G3LOG_LIBRARY} PRIVATE
 # add GCC specific stuff
 target_compile_options(${G3LOG_LIBRARY} PRIVATE
    # clang/GCC warnings
+   # The symbols are taken from the dynamic symbol table;
+   # you need the -rdynamic option to gcc, which makes it pass a flag to the 
+   # linker which ensures that all symbols are placed in the table.
    $<$<AND:$<CXX_COMPILER_ID:GNU>,$<NOT:$<BOOL:${MINGW}>>>:-rdynamic>
 )
 

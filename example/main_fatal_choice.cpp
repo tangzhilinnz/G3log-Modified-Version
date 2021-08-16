@@ -189,7 +189,7 @@ namespace
       case 2: exitFunction = &RaiseSIGFPE;  break;
       case 3: exitFunction = &RaiseSIGSEGV;  break;
       case 4: exitFunction = &RaiseSIGILL;  break;
-      case 5: exitFunction = &RAiseSIGTERM;  break;
+      case 5: exitFunction = &RaiseSIGTERM;  break;
       case 6: exitFunction = &DivisionByZero;  gShouldBeZero = 0; DivisionByZero();  break;
       case 7: exitFunction = &IllegalPrintf;  break;
       case 8: exitFunction = &OutOfBoundsArrayIndexing;  break;
@@ -269,12 +269,12 @@ namespace
             // An invalid idx causes undefined behavior.
             choice = std::stoi(option);
             if (choice <= 0 || choice > 14) {
-               std::cout << "Invalid choice: [" << option << "\n\n";
+               std::cout << "Invalid choice: [" << option << "]\n\n";
             }  else {
                return choice;
             }
          } catch (...) {
-            std::cout << "Invalid choice: [" << option << "\n\n";
+            std::cout << "Invalid choice: [" << option << "]\n\n";
          }
       }
    }

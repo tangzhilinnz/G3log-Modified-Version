@@ -58,6 +58,14 @@ namespace {
       // This call will do nothing unless we're in DEBUG and "DEBUG_BREAK_AT_FATAL_SIGNAL" is enabled
       // ref: g3log/Options.cmake
 #if (!defined(NDEBUG) && defined(DEBUG_BREAK_AT_FATAL_SIGNAL))
+      // You can call the DebugBreak Win32 function or the __debugbreak intrinsic
+      // at any point in your code. DebugBreak and __debugbreak have the same 
+      // effect as setting a breakpoint at that location.
+      // Because DebugBreak is a call to a system function, system debug symbols
+      // must be installed to ensure the correct call stack information is 
+      // displayed after breaking. Otherwise, the call stack information 
+      // displayed by the debugger may be off by one frame. 
+      // If you use __debugbreak, symbols are not required.
       __debugbreak();
 #endif
    } // scope exit - message sent to LogWorker, wait to die...

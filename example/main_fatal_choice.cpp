@@ -66,7 +66,7 @@ namespace
       LOG(WARNING) << "Expected to have died by now...";
    }
 
-   void RAiseSIGTERM() {
+   void RaiseSIGTERM() {
       LOG(G3LOG_DEBUG) << " trigger exit";
       LOGF_IF(INFO, (false != true), "Exiting %s SIGFPE", "by");
       raise(SIGTERM);
@@ -96,7 +96,6 @@ namespace
       LOG(WARNING) << "Expected to have died by now...";
    }
 
-
    void AccessViolation() {
       LOG(G3LOG_DEBUG) << " trigger exit";
       char *ptr = 0;
@@ -112,7 +111,7 @@ namespace
 
    void RaiseSIGABRTAndAccessViolation() {
       LOG(G3LOG_DEBUG) << " trigger exit";
-
+      // std::async https://www.cplusplus.com/reference/future/async/
       auto f1 = std::async(std::launch::async, &RaiseSIGABRT);
       auto f2 = std::async(std::launch::async, &AccessViolation);
       f1.wait();
@@ -133,16 +132,26 @@ namespace
          a.wait();
       }
 
-      std::cout << __FUNCTION__ << " unexpected result. Death by " << funcname << " did not crash and exit the system" << std::endl;
+      std::cout << __FUNCTION__ << " unexpected result. Death by " 
+                << funcname << " did not crash and exit the system" << std::endl;
    }
 
 
    void Throw() NOEXCEPT {
       LOG(G3LOG_DEBUG) << " trigger exit";
       std::future<int> empty;
-      empty.get(); 
+      // The behavior is undefined, but some implementations throw std::future_error
+      empty.get();
       // --> thows future_error http://en.cppreference.com/w/cpp/thread/future_error
       // example of std::exceptions can be found here: http://en.cppreference.com/w/cpp/error/exception
+      /*
+      std::future<int> empty;
+      try {
+         int n = empty.get(); 
+      } catch (const std::future_error& e) {
+        std::cout << "Caught a future_error with code \"" << e.code()
+                  << "\"\nMessage: \"" << e.what() << "\"\n";
+      } */
    }
 
 
@@ -254,6 +263,10 @@ namespace
 
          try {
             std::getline(std::cin, option);
+            // If no conversion could be performed, an invalid_argument exception is thrown.
+            // If the value read is out of the range of representable values by an int, 
+            // an out_of_range exception is thrown.
+            // An invalid idx causes undefined behavior.
             choice = std::stoi(option);
             if (choice <= 0 || choice > 14) {
                std::cout << "Invalid choice: [" << option << "\n\n";

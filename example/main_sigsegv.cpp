@@ -22,6 +22,8 @@ namespace
 #endif
 }
 
+const std::string log_file = "g3log_file";
+
 namespace example_fatal
 {
    // on Ubunti this caused get a compiler warning with gcc4.6
@@ -66,7 +68,7 @@ int main(int argc, char **argv)
 
 
    std::unique_ptr<LogWorker> logworker {LogWorker::createLogWorker()};
-   auto sinkHandle = logworker->addSink(std::make_unique<FileSink>(argv[0], path_to_log_file),
+   auto sinkHandle = logworker->addSink(std::make_unique<FileSink>(/*argv[0]*/log_file, path_to_log_file),
                                         &FileSink::fileWrite);
 
    initializeLogging(logworker.get());

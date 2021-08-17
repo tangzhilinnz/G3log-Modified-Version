@@ -32,6 +32,8 @@ namespace
    const std::string path_to_log_file = "/tmp/";
 #endif
 
+const std::string log_file = "g3log_file";
+
    void ToLower(std::string &str)
    {
       for (auto &character : str) {
@@ -303,7 +305,7 @@ void breakHere() {
 int main(int argc, char **argv)
 {
    auto worker = g3::LogWorker::createLogWorker();
-   auto handle= worker->addDefaultLogger(argv[0], path_to_log_file);
+   auto handle= worker->addDefaultLogger(/*argv[0]*/ log_file, path_to_log_file);
    g3::initializeLogging(worker.get());
    g3::setFatalPreLoggingHook(&breakHere);
    std::future<std::string> log_file_name = handle->call(&g3::FileSink::fileName);

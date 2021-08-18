@@ -67,7 +67,7 @@ namespace {
       //      std::this_thread::sleep_for(std::chrono::seconds(1));
       //   }
       //}
-      // allow any number of signals that can be captured this handler before one fatal crash
+      // allow any number of signals passing this handler before one fatal crash
       using namespace g3::internal;
       {
          //=============================== for test =================================

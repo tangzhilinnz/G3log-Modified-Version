@@ -22,7 +22,7 @@ namespace
 #endif
 }
 
-const std::string log_file = "g3log_file";
+   const std::string log_file = "g3log_file";
 
 namespace example_fatal
 {

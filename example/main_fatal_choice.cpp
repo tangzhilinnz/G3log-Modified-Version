@@ -24,7 +24,7 @@
 #define NOEXCEPT throw()
 #endif
 
-namespace
+namespace // anonymous (unnamed namespace)
 {
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
    const std::string path_to_log_file = "./";
@@ -32,7 +32,7 @@ namespace
    const std::string path_to_log_file = "/tmp/";
 #endif
 
-const std::string log_file = "g3log_file";
+   const std::string log_file = "g3log_file";
 
    void ToLower(std::string &str)
    {
@@ -42,8 +42,8 @@ const std::string log_file = "g3log_file";
    }
 
    void RaiseSIGABRT() {
-      raise(SIGABRT);
       LOG(G3LOG_DEBUG) << " trigger exit";
+      raise(SIGABRT);
       LOG(WARNING) << "Expected to have died by now...";
    }
 
@@ -125,6 +125,15 @@ const std::string log_file = "g3log_file";
    void Death_x10000(deathfunc func, std::string funcname) NOEXCEPT {
       LOG(G3LOG_DEBUG) << " trigger exit";
       std::vector<std::future<void>> asyncs;
+      // void reserve(size_type n);
+      // Requests that the vector capacity be at least enough to contain n
+      // elements. If n is greater than the current vector capacity, the 
+      // function causes the container to reallocate its storage increasing
+      // its capacity to n(or greater).
+      // In all other cases, the function call does not cause a 
+      // reallocation and the vector capacity is not affected.
+      // This function has no effect on the vector size and cannot alter its 
+      // elements.
       asyncs.reserve(10000);
       for (auto idx = 0; idx < 10000; ++idx) {
          asyncs.push_back(std::async(std::launch::async, func));
@@ -157,13 +166,17 @@ const std::string log_file = "g3log_file";
    }
 
 
-   void SegFaultAttempt_x10000() NOEXCEPT {
-      
+   void SegFaultAttempt_x10000() NOEXCEPT {     
+      // It is possible to pass lambda functions as arguments where function 
+      // pointers are expected. Of course the signature of the lamda function
+      // should match the signature of the argument, representing the function
+      // pointer.
       deathfunc f = []{char* ptr = 0; *ptr = 1; };
       Death_x10000(f, "throw uncaught exception... and then some sigsegv calls");
    }
 
    void AccessViolation_x10000() {
+      // Note that the name of a function is also its address.
       Death_x10000(&AccessViolation, "AccessViolation");
    }
 
@@ -181,27 +194,26 @@ const std::string log_file = "g3log_file";
    }
 
 
-
    void ExecuteDeathFunction(const bool runInNewThread, int fatalChoice) {
       LOG(G3LOG_DEBUG) << "trigger exit";
 
       auto exitFunction = &NoExitFunction;
       switch (fatalChoice) {
-      case 1: exitFunction = &RaiseSIGABRT;  break;
-      case 2: exitFunction = &RaiseSIGFPE;  break;
-      case 3: exitFunction = &RaiseSIGSEGV;  break;
-      case 4: exitFunction = &RaiseSIGILL;  break;
-      case 5: exitFunction = &RaiseSIGTERM;  break;
-      case 6: exitFunction = &DivisionByZero;  gShouldBeZero = 0; DivisionByZero();  break;
-      case 7: exitFunction = &IllegalPrintf;  break;
-      case 8: exitFunction = &OutOfBoundsArrayIndexing;  break;
-      case 9: exitFunction = &AccessViolation;  break;
-      case 10: exitFunction = &RaiseSIGABRTAndAccessViolation; break;
-      case 11: exitFunction = &Throw; break;
-      case 12: exitFunction = &FailedCHECK; break;
-      case 13: exitFunction = &AccessViolation_x10000; break;
-      case 14: exitFunction = &SegFaultAttempt_x10000; break;
-      default: break;
+         case 1: exitFunction = &RaiseSIGABRT;  break;
+         case 2: exitFunction = &RaiseSIGFPE;  break;
+         case 3: exitFunction = &RaiseSIGSEGV;  break;
+         case 4: exitFunction = &RaiseSIGILL;  break;
+         case 5: exitFunction = &RaiseSIGTERM;  break;
+         case 6: exitFunction = &DivisionByZero;  gShouldBeZero = 0;  DivisionByZero();  break;
+         case 7: exitFunction = &IllegalPrintf;  break;
+         case 8: exitFunction = &OutOfBoundsArrayIndexing;  break;
+         case 9: exitFunction = &AccessViolation;  break;
+         case 10: exitFunction = &RaiseSIGABRTAndAccessViolation; break;
+         case 11: exitFunction = &Throw; break;
+         case 12: exitFunction = &FailedCHECK; break;
+         case 13: exitFunction = &AccessViolation_x10000; break;
+         case 14: exitFunction = &SegFaultAttempt_x10000; break;
+         default: break;
       }
       if (runInNewThread) {
          auto dieInNearFuture = std::async(std::launch::async, CallExitFunction, exitFunction);
@@ -216,8 +228,8 @@ const std::string log_file = "g3log_file";
 
       std::cerr << unexpected  << std::endl;
       LOG(WARNING) << unexpected;
-
    }
+
 
    bool AskForAsyncDeath() {
       std::string option;
@@ -234,7 +246,6 @@ const std::string log_file = "g3log_file";
       }
       return ("yes" == option);
    }
-
 
 
    int ChoiceOfFatalExit() {
@@ -290,7 +301,7 @@ const std::string log_file = "g3log_file";
       const int exitChoice = ChoiceOfFatalExit();
       ForwardChoiceForFatalExit(runInNewThread, exitChoice);
    }
-} // namespace
+} // anonymous (unnamed namespace)
 
 void breakHere() {
    std::ostringstream oss;

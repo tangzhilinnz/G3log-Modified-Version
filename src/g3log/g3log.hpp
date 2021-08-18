@@ -220,7 +220,7 @@ And here is possible output
    if (!g3::logLevel(level)) {} else INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
 // Conditional log printf syntax
-#define LOGF_IF(level,boolean_expression, printf_like_message, ...) \
+#define LOGF_IF(level, boolean_expression, printf_like_message, ...) \
    if (!g3::logLevel(level) || false == (boolean_expression)) {} else INTERNAL_LOG_MESSAGE(level).capturef(printf_like_message, ##__VA_ARGS__)
 
 // Design By Contract, printf-like API syntax with variadic input parameters.

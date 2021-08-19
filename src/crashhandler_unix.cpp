@@ -87,8 +87,7 @@ namespace {
          /*std::cout << "exiting handler: " << std::this_thread::get_id() << std::endl;*/
          //=============================== for test =================================
 
-      } // message sent to g3LogWorker
-      // wait to die
+      } // message sent to g3LogWorker, wait to die
    }
 
    //
@@ -102,8 +101,8 @@ namespace {
       // handler is invoked) during execution of the signal handler.
       // In addition, the signal which triggered the handler will be blocked
       // (automatically added to the signal mask of the thread in which the
-      // signal handler is invokerd), unless the SA_NODEFER flag 
-      // is used.
+      // signal handler is invoked), unless the SA_NODEFER flag is used.
+      // 
       // When the signal handler is invoked, any signals in sa_mask that
       // are not currently part of the signal mask (thread/process) are 
       // automatically added to the signal mask before the handler is called. 
@@ -143,7 +142,7 @@ namespace {
           *   struct sigaction* restrict oldact); 
           * 
           * The sigaction() system call is used to change the action taken by 
-          * a process on receipt of a specific signal.
+          * a process/thread on receipt of a specific signal.
           * signum specifies the signal and can be any valid signal except
           * SIGKILL and SIGSTOP.
           * If act is non-NULL, the new action for signal signum is installed
@@ -338,7 +337,7 @@ namespace g3 {
       // number passed in signal_number
       const char* signal_name_sz = strsignal(signal_number);
 
-      // From strsignal(3): On some systems (but not on Linux), NULL may instead
+      // From strsignal: On some systems (but not on Linux), NULL may instead
       // be returned for an invalid signal number.
       if (nullptr == signal_name_sz) {
          signal_name = "Unknown signal " + std::to_string(signal_number);

@@ -104,7 +104,7 @@ namespace {
          // been reached as StackWalk64 does not reliably set the last Win32 
          // error.
          // Note: You cannot expect to reliably walk the stack on optimized code 
-         // (Release Build). Eliminating stack frames is on the top of the hit
+         // (Released Build). Eliminating stack frames is on the top of the hit
          // list for the code optimizer. The "Omit frame pointer" optimization 
          // is an important one, that frees up an extra register (EBP), always 
          // important for x86 code. It is usually off by default but the code 
@@ -117,7 +117,7 @@ namespace {
                          NULL,
                          SymFunctionTableAccess64,
                          SymGetModuleBase64,
-                         NULL)) {
+                         NULL)) { // Most callers of StackWalk64 can safely pass NULL for this parameter
             frame_pointers[index] = frame.AddrPC.Offset;
          } else {
             break; // Maybe it failed, maybe we have finished walking the stack 

@@ -9,7 +9,7 @@
 #include <limits.h>
 //#include <endian.h> // __BYTE_ORDER, __LITTLE_ENDIAN　
 
-#include "g3log/fmt_stringbuf.hpp"
+#include "g3log/format_string.hpp"
 
 #if defined(_MSC_VER)
 #include <BaseTsd.h>

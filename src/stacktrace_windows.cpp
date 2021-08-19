@@ -101,7 +101,14 @@ namespace {
          // walk the stack of a thread
          // You cannot really distinguish between StackWalk64 returning FALSE 
          // because of a failure or because of the bottom of the stack having 
-         // been reached as StackWalk64 does not reliably set the last Win32 error.
+         // been reached as StackWalk64 does not reliably set the last Win32 
+         // error.
+         // Note: You cannot expect to reliably walk the stack on optimized code 
+         // (Release Build). Eliminating stack frames is on the top of the hit
+         // list for the code optimizer. The "Omit frame pointer" optimization 
+         // is an important one, that frees up an extra register (EBP), always 
+         // important for x86 code. It is usually off by default but the code 
+         // generator applies it anyway when it can inline functions.
          if (StackWalk64(machine_type,
                          GetCurrentProcess(),
                          GetCurrentThread(),

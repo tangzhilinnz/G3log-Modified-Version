@@ -42,26 +42,26 @@ namespace {
    thread_local size_t g_thread_local_recursive_crash_check = 0;
 
    const std::map<g3::SignalType, std::string> kExceptionsAsText = {
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_ACCESS_VIOLATION), 
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_ACCESS_VIOLATION),
       g3_MAP_PAIR_STRINGIFY(EXCEPTION_ARRAY_BOUNDS_EXCEEDED),
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_DATATYPE_MISALIGNMENT), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_DENORMAL_OPERAND), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_DIVIDE_BY_ZERO), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_INEXACT_RESULT), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_INEXACT_RESULT), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_INVALID_OPERATION), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_OVERFLOW), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_STACK_CHECK), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_UNDERFLOW), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_ILLEGAL_INSTRUCTION), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_IN_PAGE_ERROR), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_INT_DIVIDE_BY_ZERO), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_INT_OVERFLOW), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_INVALID_DISPOSITION), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_NONCONTINUABLE_EXCEPTION), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_PRIV_INSTRUCTION), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_STACK_OVERFLOW), 
-      g3_MAP_PAIR_STRINGIFY(EXCEPTION_BREAKPOINT), 
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_DATATYPE_MISALIGNMENT),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_DENORMAL_OPERAND),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_DIVIDE_BY_ZERO),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_INEXACT_RESULT),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_INEXACT_RESULT),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_INVALID_OPERATION),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_OVERFLOW),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_STACK_CHECK),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_FLT_UNDERFLOW),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_ILLEGAL_INSTRUCTION),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_IN_PAGE_ERROR),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_INT_DIVIDE_BY_ZERO),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_INT_OVERFLOW),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_INVALID_DISPOSITION),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_NONCONTINUABLE_EXCEPTION),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_PRIV_INSTRUCTION),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_STACK_OVERFLOW),
+      g3_MAP_PAIR_STRINGIFY(EXCEPTION_BREAKPOINT),
       g3_MAP_PAIR_STRINGIFY(EXCEPTION_SINGLE_STEP)
 
    };
@@ -206,7 +206,7 @@ namespace stacktrace {
       CONTEXT current_context;
       memset(&current_context, 0, sizeof(CONTEXT));
       // RtlCaptureContext - 
-      // Retrieves a context record in the context of the caller stackdump()
+      // Retrieves a context record in the context of the caller stackdump
       RtlCaptureContext(&current_context);
       return stackdump(&current_context);
    }
@@ -242,6 +242,9 @@ namespace stacktrace {
       {
          const BOOL kLoadSymModules = TRUE;
          // SymInitialize - Initializes the symbol handler for a process
+         // If kLoadSymModules is TRUE, enumerates the loaded modules for the 
+         // process and effectively calls the SymLoadModule64 function for 
+         // each module.
          const auto initialized = SymInitialize(GetCurrentProcess(), nullptr, kLoadSymModules);
          if (TRUE != initialized) {
             return { "Error: Cannot call SymInitialize(...) for retrieving symbols in stack" };

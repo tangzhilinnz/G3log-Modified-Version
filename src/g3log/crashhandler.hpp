@@ -50,8 +50,10 @@ namespace g3 {
    ///     , likely with the original set of signals but with SIGTERM removed
    ///
    /// call example:
-   ///  g3::overrideSetupSignals({ {SIGABRT, "SIGABRT"}, {SIGFPE, "SIGFPE"},{SIGILL, "SIGILL"},
-   //                          {SIGSEGV, "SIGSEGV"},});
+   ///  g3::overrideSetupSignals({ {SIGABRT, "SIGABRT"}, 
+   ///                           {SIGFPE, "SIGFPE"},
+   ///                           {SIGILL, "SIGILL"},
+   ///                           {SIGSEGV, "SIGSEGV"},});
    void overrideSetupSignals(const std::map<int, std::string> overrideSignals);
 #endif
 

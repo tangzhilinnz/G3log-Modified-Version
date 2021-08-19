@@ -46,7 +46,6 @@ namespace {
       // getpid() returns the process ID (PID) of the calling process
       fatal_stream << "(" << signal_number << ")\tPID: " << getpid() << std::endl;
 
-
       LogCapture trigger(g3::internal::FATAL_SIGNAL, static_cast<g3::SignalType>(signal_number), dump.c_str());
       trigger.stream() << fatal_stream.str();
 

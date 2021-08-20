@@ -35,7 +35,9 @@ namespace example_fatal
       std::cout << "************************************************************\n\n" << std::endl << std::flush;
       std::this_thread::sleep_for(std::chrono::seconds(1));
       const std::string logging = "logging";
-      LOGF(G3LOG_DEBUG, "ILLEGAL PRINTF_SYNTAX EXAMPLE. WILL GENERATE compiler warning.\n\nbadly formatted message:[Printf-type %s is the number 1 for many %s]", logging.c_str());
+      LOGF(G3LOG_DEBUG, 
+          "ILLEGAL PRINTF_SYNTAX EXAMPLE. WILL GENERATE compiler warning.\n\nbadly formatted message:[Printf-type %s is the number 1 for many %s]", 
+          logging.c_str());
    }
 
 

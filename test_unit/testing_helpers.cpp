@@ -39,12 +39,20 @@ namespace testing_helpers {
       return g_mockFatalWasCalled;
    }
 
+   // typedef MoveOnCopy<std::unique_ptr<LogMessage>> LogMessagePtr;
+   // typedef MoveOnCopy<std::unique_ptr<FatalMessage>> FatalMessagePtr;
    void mockFatalCall(FatalMessagePtr fatal_message) {
       g_mockFatal_message = fatal_message.get()->toString();
       g_mockFatal_signal = fatal_message.get()->_signal_id;
       g_mockFatalWasCalled = true;
+      // template <class U, class E> unique_ptr(unique_ptr<U, E> && x) noexcept;
+      // The object acquires the content managed by x, moving into the object 
+      // both its stored pointer (of which it takes ownership) and its stored 
+      // deleter (unless x's deleter type is a reference, in which case the 
+      // deleter is copied instead of moved). U* shall be implicitly convertible
+      // to T* (where T is unique_ptr's first template parameter).
       LogMessagePtr message{fatal_message.release()};
-      g3::internal::pushMessageToLogger(message); //fatal_message.copyToLogMessage());
+      g3::internal::pushMessageToLogger(message); // fatal_message.copyToLogMessage());
    }
 
    void clearMockFatal() {
@@ -54,6 +62,14 @@ namespace testing_helpers {
    }
 
    bool removeFile(std::string path_to_file) {
+      // int std::remove( const char* fname );
+      // Deletes the file identified by character string pointed to by fname.
+      // If the file is currently open by the current or another process, 
+      // the behavior of this function is implementation-defined (in particular,
+      // POSIX systems unlink the file name, although the file system space is 
+      // not reclaimed even if this was the last hardlink to the file until the
+      // last running process closes the file, Windows does not allow the file 
+      // to be deleted)
       return (0 == std::remove(path_to_file.c_str()));
    }
 
@@ -65,16 +81,17 @@ namespace testing_helpers {
 
    std::string readFileToText(std::string filename) {
       std::ifstream in;
-      in.open(filename.c_str(), std::ios_base::in);
+      in.open(filename.c_str(), std::ios_base::in); // open for reading
       if (!in.is_open()) {
-         return
-         {
+         return {
          }; // error just return empty string - test will 'fault'
       }
       std::ostringstream oss;
       oss << in.rdbuf();
       return oss.str();
       // RAII of std::ifstream will automatically close the file
+      // Any open file is automatically closed when the ifstream object 
+      // is destroyed.
    }
 
    size_t LogFileCleaner::size() {

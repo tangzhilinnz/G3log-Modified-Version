@@ -92,7 +92,7 @@ namespace g3 {
       /// Adds a sink and returns the handle for access to the sink
       /// @param real_sink unique_ptr ownership is passed to the log worker
       /// @param call the default call that should receive either a std::string or a LogMessageMover message
-      ///             and be a member function pointer of class T 
+      ///             and be a member function pointer of class T(e.g., Class FileSink)
       /// @return handle to the sink for API access. See usage example below at @ref addDefaultLogger
       template<typename T, typename DefaultLogCall>
       std::unique_ptr<g3::SinkHandle<T>> addSink(std::unique_ptr<T> real_sink, DefaultLogCall call) {
@@ -108,6 +108,21 @@ namespace g3 {
          // SinkHandle(std::shared_ptr<internal::Sink<T>> sink)
          return std::make_unique<SinkHandle<T>> (sink); // new SinkHandle<T> unique_ptr
       }
+      // std::shared_ptr follows the standard C++ thread safety guarantee: (Important Principle)
+      //    different threads can modify (call non-const member functions of) different objects
+      //    of any standard C++ type without additional synchronization.
+      //    different threads can read (call const member functions of) the same object of any
+      //    standard C++ type without additional synchronization.
+      // For std::shared_ptr<T> this means refcount updates and the destruction of the managed 
+      // object are thread-safe: a thread can make a copy of a shared_ptr
+      // (incrementing the refcount) while another thread is making a copy of the same shared_ptr
+      // (also incrementing refcount). No synchronization is needed. Also it means when N threads
+      // all destroy their N copies of shared_ptr managing the same object, the destructor of
+      // that object will run only once, safely.
+      // In fact, that's the primary intended use of std::shared_ptr, letting multiple threads
+      // control the lifetime of the same object. If you don't hand it off to multiple threads, 
+      // std::shared_ptr in a C++ program is almost always a design error and definitely a waste
+      // of time doing atomic refcount updates and synchronization with the destructor unnecessarily.
 
 
       /// Removes a sink. This is a synchronous call.

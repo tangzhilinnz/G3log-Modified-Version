@@ -100,7 +100,7 @@ namespace testing_helpers {
    typedef std::shared_ptr<std::atomic<bool>> AtomicBoolPtr;
    typedef std::shared_ptr<std::atomic<int>> AtomicIntPtr;
    struct ScopedSetTrue {
-      AtomicBoolPtr  _flag;
+      AtomicBoolPtr _flag;
       AtomicIntPtr _count;
 
       explicit ScopedSetTrue(AtomicBoolPtr flag, AtomicIntPtr count)

@@ -28,6 +28,14 @@
    # =========================
    IF (ADD_G3LOG_UNIT_TEST)
       # Download and unpack googletest at configure time
+      # CMAKE_COMMAND: This is the full path to the CMake executable cmake which
+      # is useful from custom commands that want to use the cmake -E option for
+      # portable system commands. (e.g. /usr/local/bin/cmake)
+      # CMAKE_GENERATOR: The name of the generator that is being used to generate
+      # the build files. (e.g. Unix Makefiles, Ninja, etc.)
+      # The value of this variable should never be modified by project code. 
+      # A generator may be selected via the cmake -G option, interactively in
+      # cmake-gui, or via the CMAKE_GENERATOR environment variable.
       configure_file(CMakeLists.txt.in
             googletest-download/CMakeLists.txt)
       execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
@@ -53,6 +61,10 @@
                   "${gmock_SOURCE_DIR}/include")
       endif()
 
+      # enable_testing(): This command should be in the source directory root 
+      # because ctest expects to find a test file in the build directory root.
+      # This command is automatically invoked when the CTest module is included,
+      # except if the BUILD_TESTING option is turned off.
       enable_testing()
 
       set(DIR_UNIT_TEST ${g3log_SOURCE_DIR}/test_unit)
@@ -66,17 +78,17 @@
         SET(OS_SPECIFIC_TEST test_crashhandler_windows)
      ENDIF(MSVC OR MINGW)
 
-      SET(tests_to_run test_message test_filechange test_io test_cpp_future_concepts test_concept_sink test_sink ${OS_SPECIFIC_TEST})
-      SET(helper ${DIR_UNIT_TEST}/testing_helpers.h ${DIR_UNIT_TEST}/testing_helpers.cpp)
-      include_directories(${DIR_UNIT_TEST})
+     SET(tests_to_run test_message test_filechange test_io test_cpp_future_concepts test_concept_sink test_sink ${OS_SPECIFIC_TEST})
+     SET(helper ${DIR_UNIT_TEST}/testing_helpers.h ${DIR_UNIT_TEST}/testing_helpers.cpp)
+     include_directories(${DIR_UNIT_TEST})
 
-      FOREACH(test ${tests_to_run} )
+     FOREACH(test ${tests_to_run} )
         SET(all_tests  ${all_tests} ${DIR_UNIT_TEST}/${test}.cpp )
-         IF(${test} STREQUAL "test_filechange")
+        IF(${test} STREQUAL "test_filechange")
            add_executable(test_filechange ${DIR_UNIT_TEST}/${test}.cpp ${helper})
-         ELSE()
+        ELSE()
            add_executable(${test} ${g3log_SOURCE_DIR}/test_main/test_main.cpp ${DIR_UNIT_TEST}/${test}.cpp ${helper})
-         ENDIF(${test} STREQUAL "test_filechange")
+        ENDIF(${test} STREQUAL "test_filechange")
 
         set_target_properties(${test} PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_TR1_TUPLE=0")
         set_target_properties(${test} PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_RTTI=0")
@@ -84,8 +96,15 @@
            set_target_properties(${test} PROPERTIES COMPILE_FLAGS "-isystem -pthread ")
         ENDIF( NOT(MSVC)) 
         target_link_libraries(${test} g3log gtest_main)
-		add_test( ${test} ${test} )
-      ENDFOREACH(test)
+        # add_test(<name> <command> [<arg>...])
+        # Add a test called <name> with the given command-line <command> to the 
+        # project to be run by ctest. <name> may contain arbitrary characters,
+        # expressed as a Quoted Argument or Bracket Argument if necessary. If 
+        # <command> specifies an executable target (created by add_executable()) 
+        # it will automatically be replaced by the location of the executable 
+        # created at build time.
+        add_test( ${test} ${test} )
+     ENDFOREACH(test)
    
     #
     # Test for Linux, runtime loading of dynamic libraries

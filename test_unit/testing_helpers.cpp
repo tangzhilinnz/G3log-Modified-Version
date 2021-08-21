@@ -104,6 +104,8 @@ namespace testing_helpers {
       {
          for (const auto& file : logs_to_clean_) {
             if (!removeFile(file)) {
+               // Google Test: macro ADD_FAILURE
+               // This will generate a nonfatal failure.
                ADD_FAILURE() << "UNABLE to remove: " << file << std::endl;
             }
          }
@@ -114,11 +116,13 @@ namespace testing_helpers {
    void LogFileCleaner::addLogToClean(std::string path_to_log) {
       std::lock_guard<std::mutex> lock(g_mutex);
       {
-         if (std::find(logs_to_clean_.begin(), logs_to_clean_.end(), path_to_log.c_str()) == logs_to_clean_.end())
+         if (std::find(logs_to_clean_.begin(), logs_to_clean_.end(), path_to_log.c_str()) == 
+             logs_to_clean_.end())
             logs_to_clean_.push_back(path_to_log);
       }
    }
 
+   // std::unique_ptr<g3::LogWorker> _currentWorker
    ScopedLogger::ScopedLogger() : _currentWorker(g3::LogWorker::createLogWorker()) {}
    ScopedLogger::~ScopedLogger() {}
 
@@ -127,13 +131,25 @@ namespace testing_helpers {
    }
 
    RestoreFileLogger::RestoreFileLogger(std::string directory)
-   : _scope(new ScopedLogger), _handle(_scope->get()->addSink(std::make_unique<g3::FileSink>("UNIT_TEST_LOGGER", directory), &g3::FileSink::fileWrite)) {
+      : _scope(new ScopedLogger) 
+      , _handle(_scope->get()->addSink(std::make_unique<g3::FileSink>("UNIT_TEST_LOGGER", directory), 
+                &g3::FileSink::fileWrite)) {
       using namespace g3;
       g3::initializeLogging(_scope->_currentWorker.get());
       clearMockFatal();
       setFatalExitHandler(&mockFatalCall);
 
       auto filename = _handle->call(&FileSink::fileName);
+      // std::future::valid
+      // Returns (whether the future object is currently associated with a shared state.)
+      // true if the object is associated with a shared state. false otherwise.
+      // For default-constructed future objects, this function returns false 
+      // (unless move-assigned a valid future).
+      // Futures can only be initially constructed with valid shared states by 
+      // certain provider functions, such as async, promise::get_future or 
+      // packaged_task::get_future.
+      // Once the value of the shared state is retrieved with future::get, 
+      // calling this function returns false (unless move-assigned a new valid future).
       if (!filename.valid()) ADD_FAILURE();
       _log_file = filename.get();
 
@@ -147,7 +163,8 @@ namespace testing_helpers {
 
    RestoreFileLogger::~RestoreFileLogger() {
       g3::internal::shutDownLogging(); // is done at reset. Added for test clarity
-      reset();
+      reset(); // void reset() { _scope.reset(); }
+               // std::unique_ptr<ScopedLogger> _scope;
 
       if (!removeFile(_log_file))
          ADD_FAILURE();

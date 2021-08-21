@@ -91,11 +91,11 @@ namespace internal {
 
 // In lambda expression, you can capture by both reference and value, which you
 // can specify using & and = respectively: 
-//[&epsilon] captures by reference
-//[&] captures all variables used in the lambda by reference
-//[=] captures all variables used in the lambda by value
-//[&, epsilon] captures variables like with[&], but epsilon by value
-//[=, &epsilon] captures variables like with[=], but epsilon by reference
+// [&epsilon] captures by reference
+// [&] captures all variables used in the lambda by reference
+// [=] captures all variables used in the lambda by value
+// [&, epsilon] captures variables like with[&], but epsilon by value
+// [=, &epsilon] captures variables like with[=], but epsilon by reference
 
 // In C++14 lambdas have been extended by various proposals.
 // Initialized Lambda Captures

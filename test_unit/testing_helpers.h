@@ -42,7 +42,7 @@ namespace testing_helpers {
    class ScopedOut {
       std::ostream& _out_type;
       std::streambuf* _old_cout;
-    public:
+   public:
       explicit ScopedOut(std::ostream& out_type, std::stringstream* buffer)
          : _out_type(out_type)
          , _old_cout(_out_type.rdbuf()) {
@@ -82,7 +82,7 @@ namespace testing_helpers {
       ~RestoreFileLogger();
 
       std::unique_ptr<ScopedLogger> _scope;
-      void reset() { _scope.reset();}
+      void reset() { _scope.reset(); }
 
 
       template<typename Call, typename ... Args >

@@ -143,7 +143,8 @@ namespace g3 {
                      // the same as the number of elements erased, the assignment 
                      // operator of T is called the number of times equal to the 
                      // number of elements in the vector after the erased elements
-                     _impl._sinks.erase(std::remove(_impl._sinks.begin(), _impl._sinks.end(), shared_sink), _impl._sinks.end());
+                     _impl._sinks.erase(std::remove(_impl._sinks.begin(), _impl._sinks.end(), shared_sink), 
+                                        _impl._sinks.end());
                   }
                };
                auto token_done = g3::spawn_task(bg_removesink_call, _impl._bg.get());

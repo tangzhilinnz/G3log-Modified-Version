@@ -33,13 +33,14 @@ TEST(Sink, OneSink) {
       EXPECT_FALSE(flag->load());
       EXPECT_TRUE(0 == count->load());
       LogMessagePtr message{std::make_unique<LogMessage>("test", 0, "test", DEBUG)};
+      // typedef MoveOnCopy<std::unique_ptr<LogMessage>> LogMessagePtr;
       message.get()->write().append("this message should trigger an atomic increment at the sink");
       worker->save(message);
+      // ~ScopedSetTrue() { (*_flag) = true; }
    }
    EXPECT_TRUE(flag->load());
    EXPECT_TRUE(1 == count->load());
 }
-
 
 
 TEST(Sink, OneSinkRemove) {
@@ -96,8 +97,8 @@ TEST(Sink, NullSinkRemove) {
 namespace {
    using AtomicBoolPtr =  std::shared_ptr<std::atomic<bool>>;
    using AtomicIntPtr =  std::shared_ptr<std::atomic<int>>;
-   using BoolList =  vector<AtomicBoolPtr>;
-   using IntVector =  vector<AtomicIntPtr>;
+   using BoolList = std::vector<AtomicBoolPtr>;
+   using IntVector = std::vector<AtomicIntPtr>;
 
    size_t countDestroyedFlags(BoolList& flags) {
       size_t destroyed_count = 0;
@@ -179,7 +180,8 @@ void AddManySinks(size_t kNumberOfSinks, BoolList& flags, IntVector& counts,
    for (size_t idx = 0; idx < kNumberOfSinks; ++idx) {
       flags.push_back(make_shared<atomic<bool>>(false));
       counts.push_back(make_shared<atomic<int>>(0));
-      sink_handles.push_back(worker->addSink(std::make_unique<ScopedSetTrue>(flags[idx], counts[idx]), &ScopedSetTrue::ReceiveMsg));
+      sink_handles.push_back(worker->addSink(std::make_unique<ScopedSetTrue>(flags[idx], counts[idx]), 
+                                             &ScopedSetTrue::ReceiveMsg));
 
    }
 }

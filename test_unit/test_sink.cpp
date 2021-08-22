@@ -158,8 +158,16 @@ TEST(ConceptSink, OneHundredSinks) {
       auto& write2 = message2.get()->write();
       write2.append("Hello to 100 receivers :)");
       worker->save(message2);
-      logger.reset();
+      logger.reset(); 
    }
+   // void reset() { _scope.reset(); }
+   //    std::unique_ptr<ScopedLogger> _scope
+   //       destroy std::unique_ptr<g3::LogWorker> _currentWorker
+   //          ~LogWorker()
+   //             g3::internal::shutDownLoggingForActiveOnly(this);
+   //             removeAllSinks();
+   //             _impl._bg.reset(nullptr);
+
    // at the curly brace above the ScopedLogger will go out of scope and all the
    // 100 logging receivers will get their message to exit after all messages are
    // are processed
@@ -308,11 +316,12 @@ TEST(ConceptSink, IntCall__TwoCalls_ExpectingTwoAdd) {
 }
 
 
-
-void DoLogCalls(std::atomic<bool>*  doWhileTrue, size_t counter) {
+void DoLogCalls(std::atomic<bool>* doWhileTrue, size_t counter) {
    while (doWhileTrue->load()) {
       LOG(INFO) << "Calling from #" << counter;
       std::cout << "-";
+      // Provides a hint to the implementation to reschedule the execution of
+      // threads, allowing other threads to run.
       std::this_thread::yield();
    }
 }
@@ -326,17 +335,17 @@ void DoSlowLogCalls(std::atomic<bool>*  doWhileTrue, size_t counter) {
       std::this_thread::sleep_for(std::chrono::microseconds(random));
    }
 
-   std::string out = "#" + std::to_string(counter) + " number of messages sent: " + std::to_string(messages) + "\n";
+   std::string out = "#" + std::to_string(counter) + " number of messages sent: " 
+                     + std::to_string(messages) + "\n";
    std::cout << out;
 }
-
-
-
 
 TEST(ConceptSink, CannotCallSpawnTaskOnNullptrWorker) {
    auto FailedHelloWorld = [] { std::cout << "Hello World" << std::endl; };
    kjellkod::Active* active = nullptr;
    auto failed = g3::spawn_task(FailedHelloWorld, active);
+   // Nonfatal Assertion: EXPECT_ANY_THROW(stmt)
+   // stmt throws an exception of any type.
    EXPECT_ANY_THROW(failed.get());
 }
 
@@ -344,6 +353,10 @@ TEST(ConceptSink, AggressiveThreadCallsDuringAddAndRemoveSink) {
    std::atomic<bool> keepRunning{true};
    size_t numberOfCycles = 10;
    std::vector<std::thread> threads;
+   // static unsigned int hardware_concurrency() noexcept; (since C++11)
+   // Returns the number of concurrent threads supported by the implementation.
+   // The value should be considered only a hint. If the value is not well 
+   // defined or not computable, returns 0.
    const size_t numberOfThreads = std::thread::hardware_concurrency() / 2;
    threads.reserve(numberOfThreads);
 
@@ -366,7 +379,9 @@ TEST(ConceptSink, AggressiveThreadCallsDuringAddAndRemoveSink) {
 
    std::atomic<int> atomicCounter{0};
 
-   std::cout << "Add sinks, remove sinks, " << numberOfCycles  << " times\n\tWhile " << numberOfThreads << " threads are continously doing LOG calls" << std::endl;
+   std::cout << "Add sinks, remove sinks, " << numberOfCycles  << " times\n\tWhile " 
+             << numberOfThreads << " threads are continously doing LOG calls" << std::endl;
+
    for (size_t create = 0; create < numberOfCycles; ++create) {
       worker->removeAllSinks();
       sink_handles.clear();
@@ -375,7 +390,8 @@ TEST(ConceptSink, AggressiveThreadCallsDuringAddAndRemoveSink) {
       std::cout << ".";
       atomicCounter = 0;
       for (size_t sinkIdx = 0; sinkIdx < 2; ++sinkIdx) {
-         sink_handles.push_back(worker->addSink(std::make_unique<IntReceiver>(&atomicCounter), &IntReceiver::receiveMsgIncrementAtomic));
+         sink_handles.push_back(worker->addSink(std::make_unique<IntReceiver>(&atomicCounter), 
+                                                &IntReceiver::receiveMsgIncrementAtomic));
       }
       // wait till some LOGS streaming in
       while (atomicCounter.load() < 10) {

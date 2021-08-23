@@ -402,6 +402,7 @@ TEST(ConceptSink, AggressiveThreadCallsDuringAddAndRemoveSink) {
    worker.reset();
    // exit the threads
    keepRunning = false;
+   std::cout << "\n";
    for (auto& t : threads) {
       t.join();
    }

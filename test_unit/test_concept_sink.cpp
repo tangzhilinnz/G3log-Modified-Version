@@ -30,7 +30,7 @@ class CoutSink {
    unique_ptr<ScopedOut> scope_ptr;
 
    CoutSink() : scope_ptr(std::make_unique<ScopedOut>(std::cout, &buffer)) {}
- public:
+public:
    void clear() { buffer.str(""); }
    std::string string() { return buffer.str(); }
    void save(g3::LogMessageMover msg) { std::cout << msg.get().message(); }

@@ -26,6 +26,7 @@ namespace g3 {
       for (auto& sink : _sinks) {
          // LogMessage::LogMessage(const LogMessage& other)
          // *(uniqueMsg) returns a reference to the managed LogMessage object
+         // copy construct a new LogMessage object on the stack
          LogMessage msg(*(uniqueMsg));
          // typedef MoveOnCopy<LogMessage> LogMessageMover;
          // template<typename Moveable>
@@ -38,7 +39,21 @@ namespace g3 {
          err_msg.append(uniqueMsg.get()->toString()).append("]\n");
          std::cerr << err_msg;
       }
-   }
+   } // uniqueMsg that goes out of this scope will dispose of the LogMessage 
+     // object dynamically-allocated through std::make_unique<LogMessage>(...) 
+     // in g3log.cpp::saveMessage and the LogMessage object will be destroyed 
+     // immediately.
+     // uniqueMsg owns and manages this dynamic LogMessage object by a series
+     // of ownership transfers from:
+     //    <- std::unique_ptr<LogMessage> uniqueMsg(std::move(msgPtr.get()))
+     //    <- LogWorkerImpl::bgSave(g3::LogMessagePtr msgPtr)
+     //    <- LogWorker::save(LogMessagePtr msg)
+     //    <- pushMessageToLogger(LogMessagePtr incoming)
+     //    <- LogMessagePtr message {std::make_unique<LogMessage>(file, line, function, msgLevel)} 
+     //    <- saveMessage(const char* entry, const char* file, int line, const char* function, 
+     //                   const LEVELS& level, const char* boolean_expression, int fatal_signal, 
+     //                   const char* stack_trace)
+     // The same is true with uniqueMsg in LogWorkerImpl::bgFatal
 
    // typedef MoveOnCopy<std::unique_ptr<FatalMessage>> FatalMessagePtr;
    // struct FatalMessage : public LogMessage { ... }

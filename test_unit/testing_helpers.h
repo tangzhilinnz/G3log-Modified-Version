@@ -43,6 +43,16 @@ namespace testing_helpers {
       std::ostream& _out_type;
       std::streambuf* _old_cout;
    public:
+      // std::ios::rdbuf
+      // (1) streambuf* rdbuf() const;
+      // (2) streambuf* rdbuf (streambuf* sb);
+      // The first form (1) returns a pointer to the stream buffer object
+      // currently associated with the stream.
+      // The second form (2) also sets the object pointed by sb as the stream
+      // buffer associated with the stream and clears the error state flags.
+      // If sb is a null pointer, the function automatically sets the badbit
+      // error state flags (which may throw an exception if member exceptions
+      // has been passed badbit).
       explicit ScopedOut(std::ostream& out_type, std::stringstream* buffer)
          : _out_type(out_type)
          , _old_cout(_out_type.rdbuf()) {

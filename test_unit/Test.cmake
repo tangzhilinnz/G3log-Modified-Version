@@ -20,7 +20,7 @@
    # ============================================================================
 
 
-   # Unit test for g3log  (cmake -DUSE_G3LOG_UNIT_TEST=ON ..)
+   # Unit test for g3log  (cmake -DADD_G3LOG_UNIT_TEST=ON ..)
    option (ADD_G3LOG_UNIT_TEST "g3log unit tests" OFF)
 
 

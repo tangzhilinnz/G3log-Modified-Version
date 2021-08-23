@@ -76,7 +76,7 @@ namespace testing_helpers {
    };
 
    /** RAII temporarily replace of logger
-    *  and restoration of original logger at scope end*/
+    *  and restoration of original logger at scope end */
    struct RestoreFileLogger {
       explicit RestoreFileLogger(std::string directory);
       ~RestoreFileLogger();

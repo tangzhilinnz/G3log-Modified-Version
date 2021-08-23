@@ -36,8 +36,8 @@ TEST(Sink, OneSink) {
       // typedef MoveOnCopy<std::unique_ptr<LogMessage>> LogMessagePtr;
       message.get()->write().append("this message should trigger an atomic increment at the sink");
       worker->save(message);
-      // ~ScopedSetTrue() { (*_flag) = true; }
    }
+   // flush sink msg queue synchronously & ~ScopedSetTrue() { (*_flag) = true; }
    EXPECT_TRUE(flag->load());
    EXPECT_TRUE(1 == count->load());
 }
@@ -57,6 +57,7 @@ TEST(Sink, OneSinkRemove) {
       worker->save(message1);
 
       worker->removeSink(std::move(handle));
+      // flush sink msg queue synchronously & ~ScopedSetTrue() { (*_flag) = true; }
       EXPECT_TRUE(flag->load());
       EXPECT_TRUE(1 == count->load());
 
@@ -68,7 +69,7 @@ TEST(Sink, OneSinkRemove) {
 }
 
 // just compile test
-TEST(Sink, DefaultSinkRemove){
+TEST(Sink, DefaultSinkRemove) {
    using namespace g3;
    AtomicBoolPtr flag = make_shared < atomic<bool >> (false);
    AtomicIntPtr count = make_shared < atomic<int >> (0);
@@ -126,8 +127,7 @@ namespace {
       return total_count;
    }
 
-
-}
+} // unnamed namespace
 
 TEST(ConceptSink, OneHundredSinks) {
    using namespace g3;
@@ -326,7 +326,7 @@ void DoLogCalls(std::atomic<bool>* doWhileTrue, size_t counter) {
    }
 }
 
-void DoSlowLogCalls(std::atomic<bool>*  doWhileTrue, size_t counter) {
+void DoSlowLogCalls(std::atomic<bool>* doWhileTrue, size_t counter) {
    size_t messages = 0;
    while (doWhileTrue->load()) {
       LOG(INFO) << "Calling from #" << counter;

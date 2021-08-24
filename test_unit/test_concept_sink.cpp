@@ -134,7 +134,8 @@ TEST(ConceptSink, DualSink__VerifyMsgIn) {
    auto first = h1->call(&CoutSink::string);
    auto second = h2->call(&StringSink::string);
 
-
+   // ASSERT_EQ() compares pointers (which are only equal if they point to the 
+   // same memory location).
    ASSERT_EQ("Hello World!", first.get());
    ASSERT_EQ("Hello World!", second.get());
 }
@@ -178,7 +179,7 @@ TEST(ConceptSink, OneHundredSinks_part1) {
       worker->save("Hello to 100 receivers :)");
    }
    // at the curly brace above the ScopedLogger will go out of scope and all the
-   // 100 logging receivers will get their message to exit after all messages are
+   // 100 logging receivers will get their message to exit after all messages
    // are processed
    size_t index = 0;
    for (auto& flag : flags) {
@@ -213,11 +214,11 @@ TEST(ConceptSink, OneHundredSinks_part2) {
       }
 
       // 100 logs
-   for (int index = 0; index < NumberOfItems; ++index) {
-      LogMessagePtr message{std::make_unique<LogMessage>("test", 0, "test", DEBUG)};
-      message.get()->write().append("Hello to 100 receivers :)");
-      worker->save(message);
-    }
+      for (int index = 0; index < NumberOfItems; ++index) {
+         LogMessagePtr message{std::make_unique<LogMessage>("test", 0, "test", DEBUG)};
+         message.get()->write().append("Hello to 100 receivers :)");
+         worker->save(message);
+      }
    } // RAII exit 
 
    // at the curly brace above the ScopedLogger will go out of scope and all the

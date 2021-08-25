@@ -50,6 +50,11 @@
       # Add googletest directly to our build. This adds
       # the following targets: gtest, gtest_main, gmock
       # and gmock_main
+      # add_subdirectory(source_dir)
+      # Adds a subdirectory to the build. The source_dir specifies the directory
+      # in which the source CMakeLists.txt and code files are located. If it is 
+      # a relative path it will be evaluated with respect to the current directory
+      # (the typical usage), but it may also be an absolute path.
       add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
             ${CMAKE_BINARY_DIR}/googletest-build)
 
@@ -58,7 +63,7 @@
       # later. Otherwise we have to add them here ourselves.
       if (CMAKE_VERSION VERSION_LESS 2.8.11)
          include_directories("${gtest_SOURCE_DIR}/include"
-                  "${gmock_SOURCE_DIR}/include")
+                             "${gmock_SOURCE_DIR}/include")
       endif()
 
       # enable_testing(): This command should be in the source directory root 

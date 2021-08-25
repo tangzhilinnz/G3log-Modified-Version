@@ -119,8 +119,8 @@ TARGET_COMPILE_FEATURES(${G3LOG_LIBRARY} PUBLIC cxx_variable_templates)
 
 # $<BUILD_INTERFACE:...>
 # Content of ... when the property is exported using export(), or when the 
-# target is used by another target in the same buildsystem. Expands to the
-# empty string otherwise.
+# target is used by another target in the same buildsystem. 
+# Expands to the empty string otherwise.
 TARGET_INCLUDE_DIRECTORIES(${G3LOG_LIBRARY}
    PUBLIC
       $<BUILD_INTERFACE:${LOG_SRC}>

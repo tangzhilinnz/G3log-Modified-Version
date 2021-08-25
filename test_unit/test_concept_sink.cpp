@@ -241,7 +241,7 @@ TEST(ConceptSink, OneSinkWithHandleOutOfScope) {
    {
       auto worker = g3::LogWorker::createLogWorker();
       {
-         auto handle =   worker->addSink(std::make_unique<ScopedSetTrue>(flag, count), &ScopedSetTrue::ReceiveMsg);
+         auto handle = worker->addSink(std::make_unique<ScopedSetTrue>(flag, count), &ScopedSetTrue::ReceiveMsg);
       }
       EXPECT_FALSE(flag->load());
       EXPECT_TRUE(0 == count->load());

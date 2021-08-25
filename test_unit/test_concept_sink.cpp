@@ -82,7 +82,7 @@ namespace g3 {
          _bg->send([this, msg] { bgSave(msg); });
       }
 
-
+      // call must be a member function pointer of class
       template<typename T, typename DefaultLogCall>
       std::unique_ptr< SinkHandle<T> > addSink(std::unique_ptr<T> unique, DefaultLogCall call) {
          auto sink = std::make_shared < internal::Sink<T> > (std::move(unique), call);

@@ -23,6 +23,12 @@ std::future<std::string> sillyFutureReturn()
 {
   std::packaged_task<std::string()> task([](){return std::string("Hello Future");}); // wrap the function
   std::future<std::string> result = task.get_future();  // get a future
+  // Detaches the thread represented by the object from the calling thread, 
+  // allowing them to execute independently from each other.
+  // Both threads continue without blocking nor synchronizing in any way. 
+  // Note that when either one ends execution, its resources are released.
+  // After a call to this function, the thread object becomes non-joinable 
+  // and can be destroyed safely.
   std::thread(std::move(task)).detach(); // launch on a thread
   std::cout << "Waiting...";
   result.wait();
@@ -51,9 +57,29 @@ TEST(TestOf_CopyableCall, Expecting_SmoothSailing)
   MsgType type(str);
   std::unique_ptr<Active> bgWorker(Active::createActive());
   std::future<std::string> fstring =
-    g3::spawn_task(std::bind(&MsgType::msg, type), bgWorker.get());
+     g3::spawn_task(std::bind(&MsgType::msg, /*type or*/ &type), bgWorker.get());
   ASSERT_STREQ(str.c_str(), fstring.get().c_str());
 }
+// The first argument to std::bind() is an object identifying how to call a 
+// function. When a function is passed anywhere it decays into a pointer, i.e., 
+// std::bind(my_divide, 2, 2) is equivalent to std::bind(&my_divide, 2, 2).  
+// Any other callable object with a suitable function call operator would do, too.
+// std::bind() provides support for dealing with pointer to member functions. 
+// When you use &Foo::print_sum you just get a pointer to a member function, 
+// i.e., an entity of type void (Foo::*)(int, int).
+// While function names implicitly decay to pointers to functions, i.e., the & 
+// can be omitted, the same is not true for member functions (or data members, 
+// for that matter): to get a pointer to a member function it is necessary to 
+// use the &.
+// Note that the pointer to a member is specific to a class, but it can be used 
+// with any object of that class. That is, it is independent of any particular
+// object. C++ doesn't have a direct way to get a member function directly 
+// bound to an object.
+// Internally, std::bind() detects that a pointer to a member function is passed
+// and most likely turns it into a callable objects, e.g., by using std::mem_fn()
+// with its first argument. Since a non-static member function needs an object,
+// the first argument to the resolution callable object is a reference of,
+// a [smart] pointer to or a [copy] of an object of the appropriate class.
 
 
 
@@ -85,6 +111,7 @@ std::future<std::invoke_result_t<F>> ObsoleteSpawnTask(F f)
 
   std::vector<std::function<void()>> vec;
   vec.push_back(g3::MoveOnCopy<task_type>(std::move(task)));
+  // vec.back() returns a reference to the last element in the vector.
   std::thread(std::move(vec.back())).detach();
   result.wait();
   return std::move(result);
@@ -128,8 +155,8 @@ namespace WORKING
     std::future<result_type> res = task.get_future();
 
     vec.push_back(
-      MoveOnCopy<task_type>(
-      std::move(task)));
+      MoveOnCopy<task_type>(std::move(task))
+    );
 
     std::thread([]()
     {

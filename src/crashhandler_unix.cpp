@@ -297,7 +297,8 @@ namespace g3 {
       // --- If LOG(FATAL) or CHECK(false) the signal_number will be SIGABRT
       void exitWithDefaultSignalHandler(const LEVELS& level, g3::SignalType fatal_signal_id) {
          const int signal_number = static_cast<int>(fatal_signal_id);
-         restoreSignalHandler(signal_number);
+         /*restoreSignalHandler(signal_number);*/
+         restoreFatalHandlingToDefault();
          std::cerr << "\n\n" << __FUNCTION__ << ":" << __LINE__ << ". Exiting due to " 
                    << level.text << ", " << signal_number << "   \n\n" << std::flush;
 
@@ -321,10 +322,10 @@ namespace g3 {
          exit(signal_number);
       }
 
-      // restores the signal handler back to default
+      // restores the signal handler back to default for gSignals
       void restoreFatalHandlingToDefault() {
 #if !(defined(DISABLE_FATAL_SIGNALHANDLING))
-         overrideSetupSignals(kSignals);
+         overrideSetupSignals(/*kSignals*/gSignals);
 #endif
       }
 
@@ -367,6 +368,8 @@ namespace g3 {
 
    // This will override the default signal handler setup and instead
    // install a custom set of signals to handle
+   // restores the signal handler back to default when overrideSignals compares 
+   // equal with gSignals
    void overrideSetupSignals(const std::map<int, std::string> overrideSignals) {
       static std::mutex signalLock;
       std::lock_guard<std::mutex> guard(signalLock);
@@ -374,8 +377,10 @@ namespace g3 {
          restoreSignalHandler(sig.first);
       }
 
+      if (gSignals == overrideSignals) return;
+
       gSignals = overrideSignals;
-      installCrashHandler(); // installs all the signal handling for gSignals
+      installCrashHandler(); // installs all the signal handling for the new gSignals
    }
 
 

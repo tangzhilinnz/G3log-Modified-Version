@@ -24,6 +24,7 @@ namespace g3 {
    // in the resulting future. Ref: SinkHandle::call
    template<class T> // (T can be instantiated by g3::FileSink)
    class SinkHandle {
+      // Results in no effect to the managed object when destroys the weak_ptr object.
       std::weak_ptr<internal::Sink<T>> _sink;
 
    public:

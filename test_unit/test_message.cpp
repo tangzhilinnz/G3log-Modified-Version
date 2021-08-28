@@ -20,7 +20,7 @@ namespace {
    // epoc value for: Thu, 27 Apr 2017 06:22:49 GMT
    time_t k2017_April_27th = 1493274147;
    auto kTimePoint_2017_April_27th = std::chrono::system_clock::from_time_t(k2017_April_27th);
-   std::chrono::time_point<std::chrono::system_clock> k1970_January_1st = {};
+   std::chrono::time_point<std::chrono::system_clock> k1970_January_1st = {}; //0
    const std::string kFile = __FILE__;
    const int kLine = 123;
    const std::string kFunction = "MyTest::Foo";
@@ -44,7 +44,7 @@ TEST(Message, Default_toString) {
    LogMessage msg{kFile, kLine, kFunction, kLevel};
    auto details = LogMessage::DefaultLogDetailsToString(msg);
    auto output = msg.toString();
-   testing_helpers::verifyContent(output, details);
+   EXPECT_TRUE(testing_helpers::verifyContent(output, details));
 }
 
 
@@ -54,13 +54,16 @@ TEST(Message, UseOverride_4_DetailsWithThreadID_toString) {
    msg.overrideLogDetailsFunc(&LogMessage::FullLogDetailsToString);
    auto output = msg.toString();
 
+   std::cout << kFile << std::endl;
+   std::cout << output << std::endl;
+
    std::ostringstream thread_id_oss;
-   thread_id_oss << std::this_thread::get_id();
-   testing_helpers::verifyContent(output, thread_id_oss.str());
-   testing_helpers::verifyContent(output, kFile);
-   testing_helpers::verifyContent(output, kLevel.text);
-   testing_helpers::verifyContent(output, kFunction);
-   testing_helpers::verifyContent(output, std::to_string(kLine));
+   thread_id_oss << std::this_thread::get_id(); // Returns the id of the current thread.
+   EXPECT_FALSE(testing_helpers::verifyContent(output, thread_id_oss.str()));
+   EXPECT_FALSE(testing_helpers::verifyContent(output, kFile));
+   EXPECT_TRUE(testing_helpers::verifyContent(output, kLevel.text));
+   EXPECT_TRUE(testing_helpers::verifyContent(output, kFunction));
+   EXPECT_TRUE(testing_helpers::verifyContent(output, std::to_string(kLine)));
    std::cout << output << std::endl;
 }
 
@@ -69,13 +72,16 @@ TEST(Message, UseLogCall_4_DetailsWithThreadID_toString) {
    LogMessage msg{kFile, kLine, kFunction, kLevel};
    auto output = msg.toString(&LogMessage::FullLogDetailsToString);
 
+   std::cout << kFile << std::endl;
+   std::cout << output << std::endl;
+
    std::ostringstream thread_id_oss;
    thread_id_oss << std::this_thread::get_id();
-   testing_helpers::verifyContent(output, thread_id_oss.str());
-   testing_helpers::verifyContent(output, kFile);
-   testing_helpers::verifyContent(output, kLevel.text);
-   testing_helpers::verifyContent(output, kFunction);
-   testing_helpers::verifyContent(output, std::to_string(kLine));
+   EXPECT_TRUE(testing_helpers::verifyContent(output, thread_id_oss.str()));
+   EXPECT_FALSE(testing_helpers::verifyContent(output, kFile));
+   EXPECT_TRUE(testing_helpers::verifyContent(output, kLevel.text));
+   EXPECT_TRUE(testing_helpers::verifyContent(output, kFunction));
+   EXPECT_TRUE(testing_helpers::verifyContent(output, std::to_string(kLine)));
    std::cout << output << std::endl;
 }
 
@@ -87,12 +93,27 @@ TEST(Message, DefaultFormattingToLogFile) {
    {
       testing_helpers::RestoreFileLogger logger(testdirectory);
       LOG(WARNING) << "testing";
+      // void reset() { _scope.reset(); }
+      //    std::unique_ptr<ScopedLogger> _scope = nullptr
+      //    destroy the ScopedLogger object that is pointed to by _scope
+      //       ~ScopedLogger() {};
+      //       destroy std::unique_ptr<g3::LogWorker> _currentWorker;
+      //          destroy the g3::LogWorker object that is pointed to by _currentWorker
+      //             ~LogWorker();
+      //                g3::internal::shutDownLoggingForActiveOnly(this);
+      //                removeAllSinks();
+      //                _impl._bg.reset(nullptr);
+      //             destroy LogWorkerImpl _impl;
+      //                ~LogWorkerImpl() = default;
+      //                destroy std::vector<SinkWrapperPtr> _sinks;
+      //                destroy std::unique_ptr<kjellkod::Active> _bg;
       logger.reset(); // force flush of logger (which will trigger a shutdown)
       file_content = testing_helpers::readFileToText(logger.logFile()); // logger is already reset
    }
    
    std::ostringstream thread_id_oss;
    thread_id_oss << " [" << std::this_thread::get_id() << " ";
+   std::cout << thread_id_oss.str() << std::endl;
    EXPECT_FALSE(testing_helpers::verifyContent(file_content, thread_id_oss.str()));
 }
 
@@ -103,6 +124,9 @@ TEST(Message, FullFormattingToLogFile) {
    std::string file_content;
    {
       testing_helpers::RestoreFileLogger logger(testdirectory);
+      /* 
+       * _log_details_func = FullLogDetailsToString
+       * out << message.get().toString(_log_details_func) << std::flush; */
       logger._handle->call(&FileSink::overrideLogDetails, &LogMessage::FullLogDetailsToString);
 
       LOG(WARNING) << "testing";
@@ -258,6 +282,20 @@ TEST(Message, localtime_formatted) {
 
    std::shared_ptr<void> RaiiTimeZoneReset(nullptr, [&](void*) {
       if (tz)
+         // #include <stdlib.h>
+         // int setenv(const char* name, const char* value, int overwrite);
+         // int unsetenv(const char* name);
+         // 
+         // The setenv() function adds the variable name to the environment
+         // with the value value, if name does not already exist. If name
+         // does exist in the environment, then its value is changed to value
+         // if overwrite is nonzero; if overwrite is zero, then the value of
+         // name is not changed(and setenv() returns a success status).
+         // This function makes copies of the strings pointed to by nameand
+         // value
+         // The unsetenv() function deletes the variable name from the
+         // environment. If name does not exist in the environment, then the
+         // function succeeds, and the environment is unchanged.
          setenv("TZ", tz, 1);
       else
          unsetenv("TZ");

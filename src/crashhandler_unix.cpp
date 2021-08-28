@@ -131,6 +131,9 @@ namespace {
       // kill, sigqueue, or raise.
       // With SA_NODEFER there is no masking, so signal can be handled recursively
       // until stack overflows. And adding SA_RESETHAND would restore default action.
+      // If this flag is set, the signal-handling action for the signal is reset to 
+      // SIG_DFL and the SA_SIGINFO flag is cleared on entry to the signal-catching 
+      // function.
       // (sa_flags regulates how to handle signals to this process)
        
       // do it verbose style - install all signal actions

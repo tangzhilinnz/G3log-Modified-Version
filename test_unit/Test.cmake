@@ -121,6 +121,9 @@
        add_executable(test_dynamic_loaded_shared_lib ${g3log_SOURCE_DIR}/test_main/test_main.cpp ${DIR_UNIT_TEST}/test_linux_dynamic_loaded_sharedlib.cpp)
        set_target_properties(test_dynamic_loaded_shared_lib PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_TR1_TUPLE=0")
        set_target_properties(test_dynamic_loaded_shared_lib PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_RTTI=0")
+       # -ldl
+       # #include <dlfcn.h>
+       # dlopen(), dlclose(), dlerror(), dlsym(), the Base Definitions volume of IEEE Std 1003.1-2001, <dlfcn.h>
        target_link_libraries(test_dynamic_loaded_shared_lib  ${G3LOG_LIBRARY} -ldl gtest_main)
     ENDIF()
 ELSE() 

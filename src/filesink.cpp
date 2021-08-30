@@ -14,11 +14,11 @@
 namespace g3 {
    using namespace internal;
 
-   FileSink::FileSink(const std::string &log_prefix, const std::string &log_directory, const std::string& logger_id)
+   FileSink::FileSink(const std::string& log_prefix, const std::string& log_directory, const std::string& logger_id)
       : _log_details_func(&LogMessage::DefaultLogDetailsToString)
       , _log_file_with_path(log_directory)
       , _log_prefix_backup(log_prefix)
-      , _outptr(new std::ofstream)
+      //, _outptr(new std::ofstream)
       , _header("\t\tLOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL FILE->FUNCTION:LINE] message\n\n\t\t(uuu*: microseconds fractions of the seconds value)\n\n")
       , _firstEntry(true) {
 
@@ -36,7 +36,8 @@ namespace g3 {
       // std::unique_ptr<T,Deleter>::operator bool
       // true if _outptr owns an object, false otherwise.
       if (!_outptr) {
-         std::cerr << "Cannot write log file to location, attempting current directory" << std::endl;
+         std::cerr << "Cannot write log file to the location [" << _log_file_with_path
+                   << "], attempting current directory" << std::endl;
          _log_file_with_path = "./" + file_name;
          _outptr = createLogFile(_log_file_with_path);
       }
@@ -72,7 +73,7 @@ namespace g3 {
 
    std::string FileSink::changeLogFile(const std::string& directory, const std::string& logger_id) {
 
-      auto now = std::chrono::system_clock::now();
+      auto now = std::chrono::system_clock::now(); // "%Y/%m/%d %H:%M:%S %f6"
       auto now_formatted = g3::localtime_formatted(now, {internal::date_formatted + " " + internal::time_formatted});
 
       std::string file_name = createLogFileName(_log_prefix_backup, logger_id);
@@ -92,13 +93,13 @@ namespace g3 {
       filestream() << now_formatted << ss_change.str();
       ss_change.str("");
 
-      addLogFileHeader();
       std::string old_log = _log_file_with_path;
       _log_file_with_path = prospect_log;
       _outptr = std::move(log_stream);
       ss_change << "\n\tNew log file. The previous log file was at: ";
       ss_change << old_log << "\n";
       filestream() << now_formatted << ss_change.str();
+      addLogFileHeader();
       return _log_file_with_path;
    }
 

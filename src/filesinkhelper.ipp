@@ -62,20 +62,22 @@ namespace g3 {
        * template<class ForwardIt, class UnaryPredicate> 
        * ForwardIt remove_if(ForwardIt first, ForwardIt last, UnaryPredicate p) {
        *     first = std::find_if(first, last, p);
-       *     if (first != last)
-       *     for(ForwardIt i = first; ++i != last; )
-       *         if (!p(*i))
-       *             *first++ = std::move(*i);
+       *     if (first != last) {
+       *         for(ForwardIt i = first; ++i != last; )
+       *             if (!p(*i))
+       *                 *first++ = std::move(*i);
+       *     }
        *     return first;
        * }
        * 
        * template< class ForwardIt, class T >
        * ForwardIt remove(ForwardIt first, ForwardIt last, const T& value) {
        *     first = std::find(first, last, value);
-       *     if (first != last)
-       *     for(ForwardIt i = first; ++i != last; )
-       *         if (!(*i == value))
-       *             *first++ = std::move(*i);
+       *     if (first != last) {
+       *         for(ForwardIt i = first; ++i != last; )
+       *             if (!(*i == value))
+       *                 *first++ = std::move(*i);
+       *     }
        *     return first;
        * }
        * 

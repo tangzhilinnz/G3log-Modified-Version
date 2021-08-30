@@ -95,6 +95,8 @@ namespace g3 {
 
       std::string old_log = _log_file_with_path;
       _log_file_with_path = prospect_log;
+      // The dynamically-allocated ofstream object owned by _outptr before
+      // the call is deleted (as if unique_ptr's destructor was called).
       _outptr = std::move(log_stream);
       ss_change << "\n\tNew log file. The previous log file was at: ";
       ss_change << old_log << "\n";

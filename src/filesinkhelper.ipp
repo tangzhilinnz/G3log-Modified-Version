@@ -24,7 +24,7 @@ namespace g3 {
 
       // check for filename validity - filename should not be part of PATH
       bool isValidFilename(const std::string& prefix_filename) {
-         std::string illegal_characters("/,|<>:#$%{}[]\'\"^!?+* ");
+         std::string illegal_characters("/,|<>:#$%{}[]\'\"^!?+* "); // no '(' and ')'
          // Searches the string for the first character that matches any of the 
          // characters specified in illegal_characters.
          // When pos is specified, the search only includes characters at or 

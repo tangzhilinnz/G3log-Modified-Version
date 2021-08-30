@@ -38,6 +38,15 @@ namespace { // anonymous
       std::lock_guard<std::mutex> lock(m);
       {
          add_count = std::to_string(++count) + "_";
+         // std::string FileSink::changeLogFile(const std::string& directory, const std::string& logger_id) {
+         //    ... ... ... ... 
+         //    std::string file_name = createLogFileName(_log_prefix_backup, logger_id);
+         //    std::string prospect_log = directory + file_name;
+         //    ... ... ... ... 
+         //    _log_file_with_path = prospect_log;
+         //    ... ... ... ...
+         //    return _log_file_with_path;
+         // }
          auto future_new_log = g_filesink_handler->call(&g3::FileSink::changeLogFile, new_file_to_create + add_count, logger_id);
          auto new_log = future_new_log.get();
          if (!new_log.empty()) {
@@ -47,7 +56,7 @@ namespace { // anonymous
          }
          return new_log;
       }
-      return add_count;
+      // return add_count; ?
    }
 
    std::string setLogName(std::string new_file_to_create, std::string logger_id = "g3log") {
@@ -108,7 +117,7 @@ TEST(TestOf_ManyThreadsChangingLogFileName, Expecting_EqualNumberLogsCreated) {
    auto max = 2;
    auto size = g_cleaner_ptr->size();
    for (auto count = 0; count < max; ++count) {
-      std::string drive = ((count % 2) == 0) ? "./_threadEven_" : "./_threaOdd_";
+      std::string drive = ((count % 2) == 0) ? "./_threadEven_" : "./_threadOdd_";
       std::string logger_id = std::to_string(count);
       threads.push_back(std::thread(setLogNameAndAddCount, drive, logger_id));
    }
@@ -152,9 +161,10 @@ int main(int argc, char* argv[]) {
    std::string last_log_file;
    {
 
-      testing_helpers::ScopedOut scopedCerr(std::cerr, &cerrDump);
+      //testing_helpers::ScopedOut scopedCerr(std::cerr, &cerrDump);
 
       auto worker = g3::LogWorker::createLogWorker();
+      // e.g., ./(ReplaceLogFile).g3log.20210830-155821.log
       auto handle = worker->addDefaultLogger(kReplaceFileName, name_path_1);
       g_logger_ptr = worker.get();
       g_filesink_handler = handle.get();

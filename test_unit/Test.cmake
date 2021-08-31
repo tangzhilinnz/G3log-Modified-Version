@@ -98,6 +98,10 @@
         set_target_properties(${test} PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_TR1_TUPLE=0")
         set_target_properties(${test} PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_RTTI=0")
         IF( NOT(MSVC))
+           # Include flags for directories marked as SYSTEM are now moved after
+           # non-system directories. The -isystem flag does this automatically,
+           # so moving them explicitly to the end makes the behavior consistent
+           # on compilers that do not have any -isystem flag.
            set_target_properties(${test} PROPERTIES COMPILE_FLAGS "-isystem -pthread ")
         ENDIF( NOT(MSVC)) 
         target_link_libraries(${test} g3log gtest_main)
@@ -121,7 +125,7 @@
        add_executable(test_dynamic_loaded_shared_lib ${g3log_SOURCE_DIR}/test_main/test_main.cpp ${DIR_UNIT_TEST}/test_linux_dynamic_loaded_sharedlib.cpp)
        set_target_properties(test_dynamic_loaded_shared_lib PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_TR1_TUPLE=0")
        set_target_properties(test_dynamic_loaded_shared_lib PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_RTTI=0")
-       # -ldl
+       # -ldl - dynamic linking library (libdl.so.1)
        # #include <dlfcn.h>
        # dlopen(), dlclose(), dlerror(), dlsym(), the Base Definitions volume of IEEE Std 1003.1-2001, <dlfcn.h>
        target_link_libraries(test_dynamic_loaded_shared_lib  ${G3LOG_LIBRARY} -ldl gtest_main)

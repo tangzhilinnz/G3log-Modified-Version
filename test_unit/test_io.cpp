@@ -97,7 +97,8 @@ TEST(Initialization, No_Logger_Initialized___Expecting_LOG_calls_to_be_Still_OKi
    std::string err_msg3_ignored = "This uninitialized message should be ignored";
 
    try {
-      LOG(INFO) << err_msg1;
+      LOG(INFO) << err_msg1; // For the uninitialized logworker, arise a std::cerr << str << std::endl
+                             // while the first LOG msg is encountered.
       LOG(INFO) << err_msg3_ignored;
 
    } catch (std::exception& e) {
@@ -158,7 +159,7 @@ TEST(Basics, Shutdown) {
       LOG(INFO) << "Not yet shutdown. This message should make it";
       logger.reset(); // force flush of logger (which will trigger a shutdown)
       LOG(INFO) << "Logger is shutdown,. this message will not make it (but it's safe to try)";
-      file_content = readFileToText(logger.logFile()); // logger is already reset
+      file_content = readFileToText(logger.logFile()); // logger is already reset, file is closed
       SCOPED_TRACE("LOG_INFO"); // Scope exit be prepared for destructor failure
    }
    EXPECT_TRUE(verifyContent(file_content, "Not yet shutdown. This message should make it"));
@@ -172,7 +173,7 @@ TEST(Basics, Shutdownx2) {
       LOG(INFO) << "Not yet shutdown. This message should make it";
       logger.reset(); // force flush of logger (which will trigger a shutdown)
       g3::internal::shutDownLogging(); // already called in reset, but safe to call again
-      LOG(INFO) << "Logger is shutdown,. this message will not make it (but it's safe to try)";
+      LOG(INFO) << "Logger is shutdown,. this message will not make it (but it's safe to try)"; 
       file_content = readFileToText(logger.logFile()); // already reset
       SCOPED_TRACE("LOG_INFO"); // Scope exit be prepared for destructor failure
    }
@@ -186,6 +187,8 @@ TEST(Basics, ShutdownActiveLogger) {
       RestoreFileLogger logger(log_directory);
       LOG(INFO) << "Not yet shutdown. This message should make it";
       EXPECT_TRUE(g3::internal::shutDownLoggingForActiveOnly(logger._scope->get()));
+      // For the uninitialized logworker, arise a std::cerr << str << std::endl
+      // while the first LOG msg is encountered.
       LOG(INFO) << "Logger is shutdown,. this message will not make it (but it's safe to try)";
       file_content = logger.resetAndRetrieveContent();
       SCOPED_TRACE("LOG_INFO"); // Scope exit be prepared for destructor failure
@@ -335,6 +338,8 @@ TEST(LogTest, LOG_IF) {
    EXPECT_TRUE(verifyContent(file_content, t_info2));
    EXPECT_FALSE(verifyContent(file_content, t_debug3));
 }
+
+
 TEST(LogTest, LOGF__FATAL) {
    RestoreFileLogger logger(log_directory);
    ASSERT_FALSE(mockFatalWasCalled());

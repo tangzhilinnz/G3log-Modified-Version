@@ -279,7 +279,7 @@ TEST(LogTest, LOG_after_if) {
       if(false == file_content.empty()) 
          LOG(INFO) << "This-should-NOT-show-up";
       else
-        LOG(INFO) << "This-should-show-up";
+         LOG(INFO) << "This-should-show-up";
 
       logger.reset(); // force flush of logger
       file_content = readFileToText(logger.logFile());
@@ -297,7 +297,7 @@ TEST(LogTest, LOG_after_if_with_parentesis) {
       if(false == file_content.empty()) {
          LOG(INFO) << "This-should-NOT-show-up";
       } else {
-        LOG(INFO) << "This-should-show-up";
+         LOG(INFO) << "This-should-show-up";
       }
 
       logger.reset(); // force flush of logger

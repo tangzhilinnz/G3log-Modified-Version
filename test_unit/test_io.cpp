@@ -491,7 +491,6 @@ TEST(LogTest, LOG_preFatalLogging_hook) {
 }
 
 
-
 TEST(LogTest, LOG_FATAL) {
    RestoreFileLogger logger(log_directory);
    ASSERT_FALSE(mockFatalWasCalled());
@@ -511,6 +510,8 @@ TEST(LogTest, LOG_FATAL) {
    EXPECT_TRUE(verifyContent(file_content, "FATAL"));
    EXPECT_TRUE(verifyContent(file_content, "EXIT trigger caused by "));
 }
+
+
 TEST(LogTest, LOGF_IF__FATAL) {
    RestoreFileLogger logger(log_directory);
    EXPECT_FALSE(mockFatalWasCalled());
@@ -528,6 +529,15 @@ TEST(LogTest, LOGF_IF__FATAL) {
 }
 TEST(LogTest, LOG_IF__FATAL) {
    RestoreFileLogger logger(log_directory);
+   // std::string::compare -- public member function
+   // Retrun value: relation between compared string and comparing string
+   // 0  -- They compare equal
+   // <0 -- Either the value of the first character that does not match is lower
+   //       in the compared string, or all compared characters match but the 
+   //       compared string is shorter.
+   // >0 -- Either the value of the first character that does not match is greater
+   //       in the compared string, or all compared characters match but the
+   //       compared string is longer.
    LOG_IF(WARNING, (0 != t_info.compare(t_info))) << "This message should NOT be written";
    EXPECT_FALSE(mockFatalWasCalled());
    LOG_IF(FATAL, (0 != t_info.compare(t_info2))) << "This message should throw. xyz ";
@@ -610,24 +620,23 @@ TEST(CHECK, CHECK_runtimeError) {
    RestoreFileLogger logger(log_directory);
 
    g3::setFatalExitHandler([](g3::FatalMessagePtr msg) {
-     throw std::runtime_error("fatal test handler");
+      throw std::runtime_error("fatal test handler");
    });
 
    class dynamic_int_array {
-     std::unique_ptr<int[]> data_;
-     const int size_;
+      std::unique_ptr<int[]> data_;
+      const int size_;
    public:
-     explicit dynamic_int_array(int size)
+      explicit dynamic_int_array(int size)
          : data_{std::make_unique<int[]>(size)}
-         , size_(size)
-    {}
+         , size_(size) {}
 
-    int& at(int i) {
-      CHECK(i < size_);
+      int& at(int i) {
+         CHECK(i < size_);
 
-      // unreachable if i >= size_
-      return data_[i];
-    }
+         // unreachable if i >= size_
+         return data_[i];
+      }
    };
 
    dynamic_int_array arr{3};
@@ -670,7 +679,9 @@ TEST(CustomLogLevels, AddFatal) {
    std::string expected;
    expected += "DEADLY [test_io.cpp->" + std::string(__FUNCTION__) + ":" + std::to_string(line);
    EXPECT_TRUE(verifyContent(file_content, expected)) << file_content
-         << "\n\nExpected: \n" << expected;
+      << "\n\nExpected: \n" << expected;
+   EXPECT_TRUE(verifyContent(file_content, "Testing my own custom level")) << file_content
+      << "\n\nExpected: \n" << expected;
    g_fatal_counter.store(0); // restore
 }
 

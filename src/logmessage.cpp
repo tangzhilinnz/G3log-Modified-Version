@@ -140,7 +140,7 @@ namespace g3 {
       // What? Did we hit a custom made level?
       auto out = _logDetailsToStringFunc(*this);
       static const std::string errorUnknown = {
-          "UNKNOWN or Custom made Log Message Type" };
+         "UNKNOWN or Custom made Log Message Type" };
       out.append("\t*******" + errorUnknown + "\n\t" + message() + '\n');
       return out;
    }

@@ -79,7 +79,7 @@ int main(int argc, char** argv)
    const uint64_t xtra_margin {
       2
    };
-   oss << "*** It can take som time. Please wait: Approximate wait time on MY PC was:  " << number_of_threads * (uint64_t)(g_iterations * 10 * xtra_margin / us_to_s) << " seconds" << std::endl;
+   oss << "*** It can take some time. Please wait: Approximate wait time on MY PC was:  " << number_of_threads * (uint64_t)(g_iterations * 10 * xtra_margin / us_to_s) << " seconds" << std::endl;
    writeTextToFile(g_measurement_dump, oss.str(), kAppend);
    oss.str(""); // clear the stream
 

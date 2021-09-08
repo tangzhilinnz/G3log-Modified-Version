@@ -36,14 +36,14 @@
       target_link_libraries(g3log-performance-threaded_mean 
                              ${G3LOG_LIBRARY}  ${PLATFORM_LINK_LIBRIES})
 
-     # WORST CASE PERFORMANCE TEST
-     add_executable(g3log-performance-threaded_worst 
-                    ${DIR_PERFORMANCE}/main_threaded_worst.cpp
-                    ${DIR_PERFORMANCE}/performance.h)
-     # Turn on G3LOG performance flag
-     set_target_properties(g3log-performance-threaded_worst  PROPERTIES 
-                           COMPILE_DEFINITIONS "G3LOG_PERFORMANCE=1")
-     target_link_libraries(g3log-performance-threaded_worst  
+      # WORST CASE PERFORMANCE TEST
+      add_executable(g3log-performance-threaded_worst 
+                     ${DIR_PERFORMANCE}/main_threaded_worst.cpp
+                     ${DIR_PERFORMANCE}/performance.h)
+      # Turn on G3LOG performance flag
+      set_target_properties(g3log-performance-threaded_worst  PROPERTIES 
+                            COMPILE_DEFINITIONS "G3LOG_PERFORMANCE=1")
+      target_link_libraries(g3log-performance-threaded_worst  
                             ${G3LOG_LIBRARY}  ${PLATFORM_LINK_LIBRIES})
 
    ELSE()

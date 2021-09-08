@@ -21,7 +21,7 @@
    #  create the g3log's performance tests
    # =========================
    IF (ADD_G3LOG_BENCH_PERFORMANCE)
-       set(DIR_PERFORMANCE ${g3log_SOURCE_DIR}/test_performance)
+      set(DIR_PERFORMANCE ${g3log_SOURCE_DIR}/test_performance)
 
       message( STATUS "-DADD_G3LOG_BENCH_PERFORMANCE=ON" )
       include_directories (${DIR_PERFORMANCE})
@@ -38,7 +38,8 @@
 
      # WORST CASE PERFORMANCE TEST
      add_executable(g3log-performance-threaded_worst 
-                    ${DIR_PERFORMANCE}/main_threaded_worst.cpp ${DIR_PERFORMANCE}/performance.h)
+                    ${DIR_PERFORMANCE}/main_threaded_worst.cpp
+                    ${DIR_PERFORMANCE}/performance.h)
      # Turn on G3LOG performance flag
      set_target_properties(g3log-performance-threaded_worst  PROPERTIES 
                            COMPILE_DEFINITIONS "G3LOG_PERFORMANCE=1")

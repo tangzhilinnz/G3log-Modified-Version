@@ -12,6 +12,7 @@
 #include <iostream>
 #include <algorithm>
 
+
 #if defined(G3LOG_PERFORMANCE)
 const std::string title = "G3LOG";
 #elif defined(GOOGLE_GLOG_PERFORMANCE)

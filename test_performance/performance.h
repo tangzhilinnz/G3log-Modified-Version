@@ -36,6 +36,8 @@ typedef std::chrono::duration<uint64_t,std::ratio<1, 1000000> > microsecond;
 
 namespace g3_test
 {
+
+
 enum WriteMode
 {
   kAppend = 0,
@@ -71,12 +73,16 @@ bool writeTextToFile(const std::string& filename, const std::string& msg, const 
 
   out << msg;
   return true;
+
+  // std::ofstream out;
+  // Note that any open file is automatically closed when the ofstream 
+  // object _outptr is destroyed as if std::ofstream::close() is called
 }
 
 uint64_t mean(const std::vector<uint64_t> &v)
 {
   uint64_t total =  std::accumulate(v.begin(), v.end(), uint64_t(0) ); // '0' is the initial value
-  return total/v.size();
+  return total / v.size();
 }
 
 

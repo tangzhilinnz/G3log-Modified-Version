@@ -138,7 +138,7 @@ int main(int argc, char** argv)
 
    for (uint64_t idx = 0; idx < number_of_threads; ++idx)
    {
-      std::vector<uint64_t> &t_result = threads_result[idx];
+      std::vector<uint64_t>& t_result = threads_result[idx];
       uint64_t worstUs = (*std::max_element(t_result.begin(), t_result.end()));
       oss << "[Application t" << idx + 1 << " worst took: " <<  worstUs / uint64_t(1000) << " ms  (" << worstUs << " us)] " << std::endl;
    }
@@ -150,7 +150,7 @@ int main(int argc, char** argv)
    all_measurements.reserve(g_iterations * number_of_threads);
    for (uint64_t idx = 0; idx < number_of_threads; ++idx)
    {
-      std::vector<uint64_t> &t_result = threads_result[idx];
+      std::vector<uint64_t>& t_result = threads_result[idx];
       all_measurements.insert(all_measurements.end(), t_result.begin(), t_result.end());
    }
    delete [] threads_result; // finally get rid of them
@@ -162,7 +162,7 @@ int main(int argc, char** argv)
    for (auto iter = all_measurements.begin(); iter != all_measurements.end(); ++iter)
    {
       uint64_t value = (*iter) / us_to_ms; // convert to ms
-      ++value_amounts[value]; // asuming uint64_t is default 0 when initialized
+      ++value_amounts[value]; // assuming uint64_t is default 0 when initialized
 
       if (0 == value) {
          ++value_amounts_for_0ms_bucket[*iter];

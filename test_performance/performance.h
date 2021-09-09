@@ -76,7 +76,7 @@ bool writeTextToFile(const std::string& filename, const std::string& msg, const 
 
   // std::ofstream out;
   // Note that any open file is automatically closed when the ofstream 
-  // object _outptr is destroyed as if std::ofstream::close() is called
+  // object out is destroyed as if std::ofstream::close() is called
 }
 
 uint64_t mean(const std::vector<uint64_t> &v)

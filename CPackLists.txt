@@ -51,6 +51,12 @@ SET(CPACK_PACKAGE_CONTACT "Kjell Hedstrom hedstrom@kjellkoc.cc")
 SET(CPACK_RESOURCE_FILE_LICENSE  ${g3log_SOURCE_DIR}/LICENSE)
 SET(CPACK_PACKAGE_VENDOR "KjellKod")
 
+#Target Type      GNUInstallDirs Variable         Built-In Default
+#RUNTIME          ${CMAKE_INSTALL_BINDIR}         bin
+#LIBRARY          ${CMAKE_INSTALL_LIBDIR}         lib
+#ARCHIVE          ${CMAKE_INSTALL_LIBDIR}         lib
+#PRIVATE_HEADER   ${CMAKE_INSTALL_INCLUDEDIR}     include
+#PUBLIC_HEADER    ${CMAKE_INSTALL_INCLUDEDIR}     include
 IF(INSTALL_G3LOG)
    INSTALL( TARGETS g3log
                EXPORT g3log-targets

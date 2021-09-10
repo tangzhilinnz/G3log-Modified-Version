@@ -51,12 +51,27 @@ SET(CPACK_PACKAGE_CONTACT "Kjell Hedstrom hedstrom@kjellkoc.cc")
 SET(CPACK_RESOURCE_FILE_LICENSE  ${g3log_SOURCE_DIR}/LICENSE)
 SET(CPACK_PACKAGE_VENDOR "KjellKod")
 
-#Target Type      GNUInstallDirs Variable         Built-In Default
-#RUNTIME          ${CMAKE_INSTALL_BINDIR}         bin
-#LIBRARY          ${CMAKE_INSTALL_LIBDIR}         lib
-#ARCHIVE          ${CMAKE_INSTALL_LIBDIR}         lib
-#PRIVATE_HEADER   ${CMAKE_INSTALL_INCLUDEDIR}     include
-#PUBLIC_HEADER    ${CMAKE_INSTALL_INCLUDEDIR}     include
+#Target Type      GNUInstallDirs Variable       Built-In Default
+#RUNTIME          ${CMAKE_INSTALL_BINDIR}       bin -- Executables, DLLs(.dll)
+#LIBRARY          ${CMAKE_INSTALL_LIBDIR}       lib -- Shared libraries
+#ARCHIVE          ${CMAKE_INSTALL_LIBDIR}       lib -- Static libraries, DLL import libraries(.lib)
+#PRIVATE_HEADER   ${CMAKE_INSTALL_INCLUDEDIR}   include -- PUBLIC_HEADER files associated with a library
+#PUBLIC_HEADER    ${CMAKE_INSTALL_INCLUDEDIR}   include -- Similar to PUBLIC_HEADER, but for PRIVATE_HEADER files
+#
+# EXPORT
+# The EXPORT form generates and installs a CMake file containing code to import
+# targets from the installation tree into another project. By default the generated
+# file will be called <export-name>.cmake but the FILE option may be used to specify
+# a different name. The value given to the FILE option must be a file name with the 
+# .cmake extension
+#
+# COMPONENT
+# Specify an installation component name with which the install rule is associated, 
+# such as "runtime" or "development". During component-specific installation only 
+# install rules associated with the given component name will be executed. During 
+# a full installation all components are installed unless marked with EXCLUDE_FROM_ALL. 
+# If COMPONENT is not provided a default component "Unspecified" is created. 
+# The default component name may be controlled with the CMAKE_INSTALL_DEFAULT_COMPONENT_NAME variable.
 IF(INSTALL_G3LOG)
    INSTALL( TARGETS g3log
                EXPORT g3log-targets

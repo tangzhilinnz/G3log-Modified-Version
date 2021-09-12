@@ -169,8 +169,9 @@ namespace g3 {
          return out;
       }
 
-   }
-}
+
+   } // namespace internal
+} // namespace g3
 
 
 /*

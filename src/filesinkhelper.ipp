@@ -146,6 +146,9 @@ namespace g3 {
             ss_error << "FILE ERROR:  could not open log file:[" << complete_file_with_path << "]";
             ss_error << "\n\t\t std::ios_base state = " << outstream.rdstate(); // Returns the current internal error state flags of the stream.
             std::cerr << ss_error.str().c_str() << std::endl;
+            // If outstream.close() fails (including if no file was open before the call), 
+            // the failbit state flag is set for the stream (which may throw ios_base::failure 
+            // if that state flag was registered using member exceptions).
             outstream.close();
             return false;
          }

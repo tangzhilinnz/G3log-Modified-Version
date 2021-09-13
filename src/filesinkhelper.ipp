@@ -164,7 +164,7 @@ namespace g3 {
          }
          // unique_ptr<T> does not allow copy construction, instead it supports
          // move semantics.
-         // A value that is returned from a function is treated as an rvalue,
+         // A local value that is returned from a function is treated as an rvalue,
          // so the move constructor is called automatically.
          return out;
       }

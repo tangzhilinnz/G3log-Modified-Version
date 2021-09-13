@@ -24,7 +24,7 @@ namespace g3 {
 
       _log_prefix_backup = prefixSanityFix(log_prefix);
       // if (!isValidFilename(_log_prefix_backup)) {
-      if (_log_prefix_backup == "") {
+      if (_log_prefix_backup.empty()) {
          std::cerr << "g3log: forced abort due to illegal log prefix [" << log_prefix << "]" << std::endl;
          abort();
       }

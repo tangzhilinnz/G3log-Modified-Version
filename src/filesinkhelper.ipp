@@ -163,7 +163,7 @@ namespace g3 {
             // out.release();
             // out.reset(nullptr) destroys the dynamic std::ofstream object currently 
             // managed by out and out becomes empty, managing no object after the call.
-            out.reset(nullptr); // out.get() == nullptr && out == nullptr
+            out.reset(nullptr); // out.get() == nullptr
          }
          // unique_ptr<T> does not allow copy construction, instead it supports
          // move semantics.

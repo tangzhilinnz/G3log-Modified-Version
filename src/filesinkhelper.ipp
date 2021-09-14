@@ -137,9 +137,14 @@ namespace g3 {
       // stream buffer, which performs input/output operations on the file
       // they are associated with (if any).
       bool openLogFile(const std::string& complete_file_with_path, std::ofstream& outstream) {
-         // out: open for writing    trunc: discard the contents of the stream when opening
+         // std::ios_base::app      seek to the end of stream before each write
+         // std::ios_base::binary   open in binary mode
+         // std::ios_base::in       open for reading
+         // std::ios_base::out	    open for writing
+         // std::ios_base::trunc    discard the contents of the stream when opening
+         // std::ios_base::ate      seek to the end of stream immediately after open
          std::ios_base::openmode mode = std::ios_base::out; // for clarity: it's really overkill since it's an ofstream
-         mode |= std::ios_base::trunc; 
+         mode |= std::ios_base::/*trunc*/app; 
          outstream.open(complete_file_with_path, mode);
          if (!outstream.is_open()) {
             std::ostringstream ss_error;

@@ -79,7 +79,8 @@ namespace g3 {
       std::string file_name = createLogFileName(_log_prefix_backup, logger_id);
       std::string prospect_log = directory + file_name;
       std::unique_ptr<std::ofstream> log_stream = createLogFile(prospect_log);
-      if (nullptr == log_stream) {
+      // if (nullptr == log_stream) {
+      if (!log_stream) {
          filestream() << "\n" << now_formatted 
                       << " Unable to change log file. Illegal filename or busy? Unsuccessful log name was: " 
                       << prospect_log;

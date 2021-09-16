@@ -6,16 +6,11 @@
  * For more information see g3log/LICENSE or refer refer to http://unlicense.org
  * ============================================================================*/
 
-#pragma once
-
-
+#include "g3log/filesinkhelper.hpp"
 #include <memory>
 #include <string>
+#include "g3log/time.hpp"
 #include <algorithm>
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <g3log/time.hpp>
 #include <regex>
 #include <filesystem> // std::filesystem C++ 17
 #include <ios>
@@ -24,8 +19,7 @@
 
 namespace g3 {
    namespace internal {
-      static const std::string file_name_time_formatted = "%Y%m%d-%H%M%S";
-
+      //static const std::string file_name_time_formatted = "%Y%m%d-%H%M%S";
 
       // check for filename validity - filename should not be part of PATH
       bool isValidFilename(const std::string& prefix_filename) {
@@ -126,7 +120,7 @@ namespace g3 {
       }
 
 
-      /// create the file name with creation time
+      /// create the file name with creation time and logger_id
       std::string createLogFileName(const std::string& verified_prefix, const std::string& logger_id) {
          std::stringstream oss_name;
          oss_name << verified_prefix << ".";
@@ -140,7 +134,7 @@ namespace g3 {
       }
 
 
-      /// create the file name without creation time
+      /// create the file name without creation time and logger_id
       std::string addLogSuffix(const std::string& verified_prefix) {
          std::stringstream oss_name;
          oss_name << verified_prefix << ".log";
@@ -289,7 +283,8 @@ namespace g3 {
             //    special meaning inside brackets.)
             // 3) [^c] says that we want any character that is not 'c'
             // 4) A component followed by ¡¯?¡¯ is optional
-            regex date_regex("\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})\\.gz");
+            //regex date_regex("\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})\\.gz");
+            regex date_regex("\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})\\.archive");
             smatch date_match;
             if (regex_match(suffix, date_match, date_regex)) {
                if (date_match.size() == 2) {
@@ -355,6 +350,27 @@ namespace g3 {
          // Checks if the given path corresponds to an existing directory.
          if (!std::filesystem::exists(dir_path)) return;
 
+         // std::filesystem::begin(directory_iterator), std::filesystem::end(directory_iterator)
+         // directory_iterator begin( directory_iterator iter ) noexcept; 
+         // -- Returns iter unchanged
+         // directory_iterator end( const directory_iterator& ) noexcept; 
+         // -- Returns a default-constructed directory_iterator, which serves
+         //    as the end iterator. The argument is ignored.
+         // These non-member functions enable the use of directory_iterators 
+         // with range-based for loops.
+         // std::filesystem::directory_entry::is_regular_file
+         // bool is_regular_file() const;
+         // -- Checks whether the pointed-to object is a regular file. 
+         //    Effectively returns std::filesystem::is_regular_file(status())
+         auto dirIter = std::filesystem::directory_iterator(dir_path);
+         auto fileCount = std::count_if (
+            std::filesystem::begin(dirIter),
+            std::filesystem::end(dirIter),
+            [](auto& entry) { return entry.is_regular_file(); }
+         );
+
+         if (fileCount <= max_log_count) return;
+
          // std::filesystem::directory_iterator::directory_iterator
          // explicit directory_iterator( const std::filesystem::path& p );
          // Constructs a directory iterator that refers to the first directory entry of a 
@@ -375,13 +391,13 @@ namespace g3 {
          for (std::filesystem::directory_iterator itr(dir_path); itr != end_itr; ++itr) {
             // std::filesystem::directory_entry::path
             // const std::filesystem::path& path() const noexcept;
-            // Returns the full path the directory entry refers to.
+            // -- Returns the full path the directory entry refers to.
             // std::filesystem::path::filename
             // path filename() const;
-            // Returns the generic-format filename component of the path.
+            // -- Returns the generic-format filename component of the path.
             // std::filesystem::path::string
             // std::string string() const;
-            // Returns the internal pathname in native pathname format, 
+            // -- Returns the internal pathname in native pathname format, 
             // converted to specific string type.
             std::string current_file(itr->path().filename().string());
             long time = 0;

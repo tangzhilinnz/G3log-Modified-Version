@@ -7,9 +7,11 @@
  * ============================================================================*/
 
 #include "g3log/filesink.hpp"
-#include "filesinkhelper.ipp"
+#include "g3log/filesinkhelper.hpp"
+//#include "filesinkhelper.ipp"
 #include <cassert>
 #include <chrono>
+
 
 namespace g3 {
    using namespace internal;
@@ -46,7 +48,7 @@ namespace g3 {
 
 
    FileSink::~FileSink() {
-      std::string exit_msg {"g3log g3FileSink shutdown at: "};
+      std::string exit_msg {"g3log FileSink shutdown at: "};
       auto now = std::chrono::system_clock::now();
       // exit_msg.append(localtime_formatted(now, internal::time_formatted)).append("\n");
       exit_msg.append(localtime_formatted(now, { internal::date_formatted + " " + internal::time_formatted })).append("\n");

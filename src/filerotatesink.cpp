@@ -112,9 +112,11 @@ namespace g3 {
          auto now = std::chrono::system_clock::now();
          archive_file_name << g3::localtime_formatted(now, "%Y-%m-%d-%H-%M-%S");
          archive_file_name << /*".gz"*/".archive"; // "/my_log_dir/tangzhilin.log.%Y-%m-%d-%H-%M-%S.archive"
+         is.close();
 
          if (std::rename(log_file_with_path_.c_str(), archive_file_name.str().c_str())) {
             std::perror("error renaming the rotated file [the size of the file in use has exceeded the maximum value!!!]");
+            openLogFile(log_file_with_path_, is);
             return false;
          }
 
@@ -122,6 +124,7 @@ namespace g3 {
          if (logfile.empty()) {
             std::cerr << "cannot create new log file when rotating " 
                       << "[the size of the file in use has exceeded the maximum value!!!]" << std::endl;
+            openLogFile(log_file_with_path_, is);
             return false;
          }
 

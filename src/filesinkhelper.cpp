@@ -11,7 +11,6 @@
 #include <string>
 #include "g3log/time.hpp"
 #include <algorithm>
-#include <regex>
 #include <filesystem> // std::filesystem C++ 17
 #include <ios>
 #include <iomanip>
@@ -235,11 +234,6 @@ namespace g3 {
       }
 #endif
 
-      // In c++11 regex, regex compilation (building up a regex object of string) is really done 
-      // at program runtime. The best thing you can do for the sake of speed is to construct a 
-      // corresponding regex object just once per program run, say, having it declared as a static
-      // variable.
-      static std::regex date_regex("\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})\\.arc([0-9]+)\\.log");
 
       /// @return result as time from the file name
       bool getDateFromFileName(const std::string& app_name, const std::string& file_name, long& unique_num, long& time_result) {
@@ -348,7 +342,7 @@ namespace g3 {
        */
       // TODO, no need to check and record archiving time each entry through this func 
       void expireArchives(const std::string& dir, const std::string& app_name, unsigned long max_log_count) {
-         std::map< std::pair<long, long>, std::string, comp > files;
+         std::map< std::pair<long, long>, std::string, Comparator > files;
          
          // Constructs the path from a character sequence 
          std::filesystem::path dir_path(dir);
@@ -442,13 +436,9 @@ namespace g3 {
 
 
       //std::map<long, std::string> getArchiveLogFilesInDirectory(const std::string& dir, const std::string& app_name) {
-      std::map<std::pair<long, long>, std::string, comp> getArchiveLogFilesInDirectory(const std::string& dir, const std::string& app_name) {
-         //std::map<long, std::string> files;
-         //auto comp = [](const std::pair<long, long>& a, const std::pair<long, long>& b) {
-         //               if (a.first < b.first) return true;
-         //               else if (a.first == b.first) return a.second < b.second;
-         //               else return false; };
-         std::map< std::pair<long, long>, std::string, comp > files;
+      std::map<std::pair<long, long>, std::string, Comparator> 
+      getArchiveLogFilesInDirectory(const std::string& dir, const std::string& app_name) {
+         std::map< std::pair<long, long>, std::string, Comparator > files;
 
          std::filesystem::path dir_path(dir);
 

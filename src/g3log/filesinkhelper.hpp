@@ -7,23 +7,30 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <regex>
 
+
+namespace {
+
+    class Comparator {
+    public:
+       bool operator()(const std::pair<long, long>& a, const std::pair<long, long>& b) const {
+          if (a.first < b.first) return true;
+          else if (a.first == b.first) return a.second < b.second;
+          else return false;
+       }
+    };
+
+} // anonymous namespace 
 
 namespace g3 {
    namespace internal {
       static const std::string file_name_time_formatted = "%Y%m%d-%H%M%S";
-      class comp {
-      public:
-         bool operator()(const std::pair<long, long>& a, const std::pair<long, long>& b) const {
-            if (a.first < b.first) return true;
-            else if (a.first == b.first) return a.second < b.second;
-            else return false;
-         }
-      };
-      //static auto comp = [](const std::pair<long, long>& a, const std::pair<long, long>& b) {
-      //   if (a.first < b.first) return true;
-      //   else if (a.first == b.first) return a.second < b.second;
-      //   else return false; };
+      // In c++11 regex, regex compilation (building up a regex object of string) is really done 
+      // at program runtime. The best thing you can do for the sake of speed is to construct a 
+      // corresponding regex object just once per program run, say, having it declared as a static
+      // variable.
+      static std::regex date_regex("\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})\\.arc([0-9]+)\\.log");
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__)) && !defined(__MINGW32__)
       char* strptime(const char* s, const char* f, struct tm* tm);
@@ -53,7 +60,7 @@ namespace g3 {
 
       /// @return all the found files in the directory that follow the expected log name pattern
       /// std::map<long: timestamp, std::string : name>
-      std::map<std::pair<long, long>, std::string, comp> getArchiveLogFilesInDirectory(const std::string& dir, const std::string& app_name);
+      std::map<std::pair<long, long>, std::string, Comparator> getArchiveLogFilesInDirectory(const std::string& dir, const std::string& app_name);
 
       /// create the file name with creation time and logger_id
       std::string createLogFileName(const std::string& verified_prefix, const std::string& logger_id);

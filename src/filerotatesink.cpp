@@ -26,13 +26,14 @@ namespace g3 {
       //, outptr_(new std::ofstream)
       , header_("\t\tLOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL FILE->FUNCTION:LINE] message\n\n\t\t(uuu*: microseconds fractions of the seconds value)\n\n")
       //, steady_start_time_(std::chrono::steady_clock::now())
+      , max_log_size_(524288000)
+      , max_archive_log_count_(10)
+      , archive_unique_num_(0) 
       , flush_policy_(flush_policy)
-      , flush_policy_counter_(flush_policy)
-      , archive_unique_num_(0) {
+      , flush_policy_counter_(flush_policy) {
 
       log_prefix_backup_ = prefixSanityFix(log_prefix);
-      max_log_size_ = 524288000;
-      max_archive_log_count_ = 10;
+
       // if (!isValidFilename(log_prefix_backup_)) {
       if (log_prefix_backup_.empty()) {
          std::cerr << "g3log: forced abort due to illegal log prefix [" << log_prefix << "]" << std::endl;

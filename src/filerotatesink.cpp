@@ -27,7 +27,8 @@ namespace g3 {
       , header_("\t\tLOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL FILE->FUNCTION:LINE] message\n\n\t\t(uuu*: microseconds fractions of the seconds value)\n\n")
       //, steady_start_time_(std::chrono::steady_clock::now())
       , flush_policy_(flush_policy)
-      , flush_policy_counter_(flush_policy) {
+      , flush_policy_counter_(flush_policy)
+      , archive_unique_num_(0) {
 
       log_prefix_backup_ = prefixSanityFix(log_prefix);
       max_log_size_ = 524288000;
@@ -111,8 +112,9 @@ namespace g3 {
          archive_file_name << log_file_with_path_ << ".";
          auto now = std::chrono::system_clock::now();
          archive_file_name << g3::localtime_formatted(now, "%Y-%m-%d-%H-%M-%S");
-         archive_file_name << /*".gz"*/".archive"; // "/my_log_dir/tangzhilin.log.%Y-%m-%d-%H-%M-%S.archive"
-         is.close();
+         archive_file_name << ".arc" << archive_unique_num_++ << ".log";
+         // "/my_log_dir/tangzhilin.log.%Y-%m-%d-%H-%M-%S.arc12.log"
+         is.close(); // It's required to close files first to rename on Windows
 
          if (std::rename(log_file_with_path_.c_str(), archive_file_name.str().c_str())) {
             std::perror("error renaming the rotated file [the size of the file in use has exceeded the maximum value!!!]");
@@ -129,7 +131,7 @@ namespace g3 {
          }
 
          std::ostringstream ss;
-         ss << "Log rotated Archived file name: " << archive_file_name.str().c_str() << "\n";
+         ss << "Previous rotated Archived log file name: " << archive_file_name.str().c_str() << "\n";
          fileWriteWithoutRotate(ss.str());
          ss.clear();
          ss.str("");

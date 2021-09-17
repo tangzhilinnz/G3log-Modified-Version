@@ -12,6 +12,18 @@
 namespace g3 {
    namespace internal {
       static const std::string file_name_time_formatted = "%Y%m%d-%H%M%S";
+      class comp {
+      public:
+         bool operator()(const std::pair<long, long>& a, const std::pair<long, long>& b) const {
+            if (a.first < b.first) return true;
+            else if (a.first == b.first) return a.second < b.second;
+            else return false;
+         }
+      };
+      //static auto comp = [](const std::pair<long, long>& a, const std::pair<long, long>& b) {
+      //   if (a.first < b.first) return true;
+      //   else if (a.first == b.first) return a.second < b.second;
+      //   else return false; };
 
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__)) && !defined(__MINGW32__)
       char* strptime(const char* s, const char* f, struct tm* tm);
@@ -30,7 +42,7 @@ namespace g3 {
       std::string header(const std::string& headerFormat);
 
       /// @return result as time from the file name
-      bool getDateFromFileName(const std::string& app_name, const std::string& file_name, long& result);
+      bool getDateFromFileName(const std::string& app_name, const std::string& file_name, long& unique_num, long& time_result);
 
       /**
        * Loop through the files in the folder
@@ -41,7 +53,7 @@ namespace g3 {
 
       /// @return all the found files in the directory that follow the expected log name pattern
       /// std::map<long: timestamp, std::string : name>
-      std::map<long, std::string> getLogFilesInDirectory(const std::string& dir, const std::string& app_name);
+      std::map<std::pair<long, long>, std::string, comp> getArchiveLogFilesInDirectory(const std::string& dir, const std::string& app_name);
 
       /// create the file name with creation time and logger_id
       std::string createLogFileName(const std::string& verified_prefix, const std::string& logger_id);

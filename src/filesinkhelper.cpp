@@ -15,6 +15,7 @@
 #include <filesystem> // std::filesystem C++ 17
 #include <ios>
 #include <iomanip>
+#include <utility> // std::pair, std::make_pair
 
 
 namespace g3 {
@@ -234,9 +235,15 @@ namespace g3 {
       }
 #endif
 
+      // In c++11 regex, regex compilation (building up a regex object of string) is really done 
+      // at program runtime. The best thing you can do for the sake of speed is to construct a 
+      // corresponding regex object just once per program run, say, having it declared as a static
+      // variable.
+      static std::regex date_regex("\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})\\.arc([0-9]+)\\.log");
 
       /// @return result as time from the file name
-      bool getDateFromFileName(const std::string& app_name, const std::string& file_name, long& result) {
+      bool getDateFromFileName(const std::string& app_name, const std::string& file_name, long& unique_num, long& time_result) {
+
          if (file_name.find(app_name) != std::string::npos) {
             std::string suffix = file_name.substr(app_name.size());
             if (suffix.empty()) {
@@ -283,11 +290,13 @@ namespace g3 {
             //    special meaning inside brackets.)
             // 3) [^c] says that we want any character that is not 'c'
             // 4) A component followed by ¡¯?¡¯ is optional
-            //regex date_regex("\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})\\.gz");
-            regex date_regex("\\.(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2})\\.archive");
             smatch date_match;
             if (regex_match(suffix, date_match, date_regex)) {
-               if (date_match.size() == 2) {
+               if (date_match.size() == 3) {
+                  std::string arc_unique_num_str = date_match[2].str();
+                  long arc_unique_num = std::stol(arc_unique_num_str, nullptr);
+                  unique_num = arc_unique_num;
+                  //return true;
                   std::string date = date_match[1].str();
                   struct tm tm = { 0 };
                   time_t t;
@@ -324,14 +333,13 @@ namespace g3 {
                   if (t == -1) {
                      return false;
                   }
-                  result = (long)t;
-                      return true;
+                  time_result = (long)t;
+                  return true;
                }
             }
          }
          return false;
       }
-
 
       /**
        * Loop through the files in the folder
@@ -340,7 +348,8 @@ namespace g3 {
        */
       // TODO, no need to check and record archiving time each entry through this func 
       void expireArchives(const std::string& dir, const std::string& app_name, unsigned long max_log_count) {
-         std::map<long, std::string> files;
+         std::map< std::pair<long, long>, std::string, comp > files;
+         
          // Constructs the path from a character sequence 
          std::filesystem::path dir_path(dir);
 
@@ -369,7 +378,7 @@ namespace g3 {
             [](auto& entry) { return entry.is_regular_file(); }
          );
 
-         if (fileCount <= max_log_count) return;
+         if (fileCount - 1 <= max_log_count) return;
 
          // std::filesystem::directory_iterator::directory_iterator
          // explicit directory_iterator( const std::filesystem::path& p );
@@ -400,9 +409,12 @@ namespace g3 {
             // -- Returns the internal pathname in native pathname format, 
             // converted to specific string type.
             std::string current_file(itr->path().filename().string());
+            long unique_num = 0;
             long time = 0;
-            if (getDateFromFileName(app_name, current_file, time)) {
-               files.insert(std::pair<long, std::string >(time, current_file));
+            if (getDateFromFileName(app_name, current_file, unique_num, time)) {
+               std::pair<long, long> key = std::make_pair(time, unique_num);
+               //files.insert(std::pair<long, std::string >(unique_num, current_file));
+               files.insert(std::make_pair(key, current_file));
             }
          }
 
@@ -414,7 +426,7 @@ namespace g3 {
          ptrdiff_t logs_to_delete = files.size() - max_log_count;
          if (logs_to_delete > 0) {
             // std::map is already sorted in ascending order of keys(time)
-            for (std::map<long, std::string>::iterator it = files.begin(); it != files.end(); ++it) {
+            for (auto it = files.begin(); it != files.end(); ++it) {
                if (logs_to_delete <= 0) {
                   break;
                }
@@ -429,8 +441,15 @@ namespace g3 {
       }
 
 
-      std::map<long, std::string> getLogFilesInDirectory(const std::string& dir, const std::string& app_name) {
-         std::map<long, std::string> files;
+      //std::map<long, std::string> getArchiveLogFilesInDirectory(const std::string& dir, const std::string& app_name) {
+      std::map<std::pair<long, long>, std::string, comp> getArchiveLogFilesInDirectory(const std::string& dir, const std::string& app_name) {
+         //std::map<long, std::string> files;
+         //auto comp = [](const std::pair<long, long>& a, const std::pair<long, long>& b) {
+         //               if (a.first < b.first) return true;
+         //               else if (a.first == b.first) return a.second < b.second;
+         //               else return false; };
+         std::map< std::pair<long, long>, std::string, comp > files;
+
          std::filesystem::path dir_path(dir);
 
          std::filesystem::directory_iterator end_itr;
@@ -438,9 +457,12 @@ namespace g3 {
 
          for (std::filesystem::directory_iterator itr(dir_path); itr != end_itr; ++itr) {
             std::string current_file(itr->path().filename().string());
+            long unique_num = 0;
             long time = 0;
-            if (getDateFromFileName(app_name, current_file, time)) {
-               files.insert(std::pair<long, std::string >(time, current_file));
+            if (getDateFromFileName(app_name, current_file, unique_num, time)) {
+               std::pair<long, long> key = std::make_pair(time, unique_num);
+               //files.insert(std::pair<long, std::string >(unique_num, current_file));
+               files.insert(std::make_pair(key, current_file));
             }
          }
 

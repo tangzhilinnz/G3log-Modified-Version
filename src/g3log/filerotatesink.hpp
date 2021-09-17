@@ -55,6 +55,7 @@ namespace g3 {
       //steady_time_point steady_start_time_; // std::chrono::time_point<std::chrono::steady_clock>;
       int max_log_size_;
       int max_archive_log_count_;
+      long archive_unique_num_;
       std::streamoff cur_log_size_;
       size_t flush_policy_;
       size_t flush_policy_counter_;

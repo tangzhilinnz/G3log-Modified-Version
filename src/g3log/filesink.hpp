@@ -7,10 +7,12 @@
  * ============================================================================*/
 #pragma once
 
+#include "g3log/logmessage.hpp"
+
 #include <string>
 #include <memory>
 
-#include "g3log/logmessage.hpp"
+
 namespace g3 {
 
    class FileSink {

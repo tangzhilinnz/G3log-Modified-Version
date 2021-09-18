@@ -1,11 +1,10 @@
 #pragma once
 
+#include "g3log/logmessage.hpp"
 
 #include <string>
 #include <memory>
 #include <ios>
-
-#include "g3log/logmessage.hpp"
 
 
 /** The Real McCoy Background worker, while g3::LogWorker gives the
@@ -18,7 +17,6 @@
  * Default is to flush every single time
  */
 namespace g3 {
-   using namespace internal;
 
    class FileRotateSink {
    public:
@@ -37,7 +35,6 @@ namespace g3 {
 
       std::string changeLogFile(const std::string& directory, const std::string& new_name = "");
       std::string logFileName();
-
       bool rotateLog();
       void setLogSizeCounter();
       //bool createCompressedFile(std::string file_name, std::string gzip_file_name);

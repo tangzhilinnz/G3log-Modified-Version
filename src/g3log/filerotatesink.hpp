@@ -33,6 +33,7 @@ namespace g3 {
       void fileWrite(LogMessageMover message);
       void fileWriteWithoutRotate(std::string message);
       void setFlushPolicy(size_t flush_policy);
+      void flush();
 
       std::string changeLogFile(const std::string& directory, const std::string& new_name = "");
       std::string logFileName();
@@ -60,7 +61,6 @@ namespace g3 {
       size_t flush_policy_;
       size_t flush_policy_counter_;
 
-      void flush();
       void flushPolicy();
 
       void addLogFileHeader();

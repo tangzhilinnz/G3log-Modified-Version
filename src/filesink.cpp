@@ -98,6 +98,7 @@ namespace g3 {
 
       std::string old_log = _log_file_with_path;
       _log_file_with_path = prospect_log;
+      _firstEntry = true;
       // The dynamically-allocated ofstream object owned by _outptr before
       // the call is deleted (as if unique_ptr's destructor was called).
       _outptr = std::move(log_stream);
@@ -114,6 +115,9 @@ namespace g3 {
 
    void FileSink::overrideLogDetails(LogMessage::LogDetailsFunc func) {
       _log_details_func = func;
+      const std::string newHeader =
+         "\t\tLOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL THREAD_ID FILE->FUNCTION:LINE] message\n\t\t(uuu*: microseconds fractions of the seconds value)\n\n";
+      overrideLogHeader(newHeader);
    }
 
    void FileSink::overrideLogHeader(const std::string& change) {

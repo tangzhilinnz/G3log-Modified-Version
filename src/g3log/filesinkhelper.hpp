@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include <string>
 #include <memory>
 #include <iostream>
@@ -15,8 +14,8 @@ namespace {
     class Comparator {
     public:
        bool operator()(const std::pair<long, long>& a, const std::pair<long, long>& b) const {
-          if (a.first < b.first) return true;
-          else if (a.first == b.first) return a.second < b.second;
+          if (a.first < b.first) return true; // archive creation time comparison
+          else if (a.first == b.first) return a.second < b.second; // archive unique number comparison
           else return false;
        }
     };
@@ -74,7 +73,7 @@ namespace g3 {
 
       /// create the file
       std::unique_ptr<std::ofstream> createLogFile(const std::string& file_with_full_path);
-   
+
 
    } // namespace internal
 } // namespace g3

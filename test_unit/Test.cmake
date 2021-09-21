@@ -50,11 +50,14 @@
       # Add googletest directly to our build. This adds
       # the following targets: gtest, gtest_main, gmock
       # and gmock_main
-      # add_subdirectory(source_dir)
+      # add_subdirectory(source_dir [binary_dir])
       # Adds a subdirectory to the build. The source_dir specifies the directory
       # in which the source CMakeLists.txt and code files are located. If it is 
       # a relative path it will be evaluated with respect to the current directory
       # (the typical usage), but it may also be an absolute path.
+      # The binary_dir specifies the directory in which to place the output files. 
+      # If it is a relative path it will be evaluated with respect to the current
+      # output directory, but it may also be an absolute path.
       add_subdirectory(${CMAKE_BINARY_DIR}/googletest-src
             ${CMAKE_BINARY_DIR}/googletest-build)
 

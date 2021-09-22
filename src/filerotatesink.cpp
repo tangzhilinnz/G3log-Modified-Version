@@ -194,6 +194,15 @@ namespace g3 {
    }
 
 
+   // for unit test
+   void FileRotateSink::save(std::string message) {
+      if (cur_log_size_ > max_log_size_) {
+         rotateLog();
+      }
+      fileWriteWithoutRotate(message);
+   }
+
+
    void FileRotateSink::flushPolicy() {
       if (0 == flush_policy_) return;
       if (0 == --flush_policy_counter_) {

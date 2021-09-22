@@ -28,6 +28,7 @@ namespace g3 {
       void setMaxLogSize(int size);
       int getMaxLogSize();
 
+      void save(std::string message); // for unit test
       void fileWrite(LogMessageMover message);
       void fileWriteWithoutRotate(std::string message);
       void setFlushPolicy(size_t flush_policy);

@@ -17,8 +17,8 @@
 namespace g3 {
 
    class FileRotateWithFilter {
-      using FileRotateUptr = std::unique_ptr<FileRotateSink>;
-      using IgnoreLogLevels = std::vector<LEVELS>;
+      //using FileRotateUptr = std::unique_ptr<FileRotateSink>;
+      //using IgnoreLogLevels = std::vector<LEVELS>;
       
    public:
        // helper function to create an logging sink with filter
@@ -30,7 +30,7 @@ namespace g3 {
 
       /// @param logToFile rotate file logging sink
       /// @param removes all log entries with LEVELS in this filter
-      FileRotateWithFilter(FileRotateUptr logToFile, IgnoreLogLevels ignoreLevels)
+      FileRotateWithFilter(std::unique_ptr<FileRotateSink> logToFile, std::vector<LEVELS> ignoreLevels)
          : logger_(std::move(logToFile))
          , filter_(std::move(ignoreLevels))
       {}
@@ -115,9 +115,9 @@ namespace g3 {
          logger_->overrideLogHeader(change);
       }
 
-    private:
-      FileRotateUptr logger_;
-      IgnoreLogLevels filter_;
+   private:
+      std::unique_ptr<FileRotateSink> logger_;
+      std::vector<LEVELS> filter_;
    };
 
 

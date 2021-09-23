@@ -8,7 +8,7 @@
  * PUBLIC DOMAIN and Not copywrited. First published at KjellKod.cc
  * ********************************************* */
 
-#include "test_rotate_file.h"
+#include "test_rotate_sink.h"
 #include "test_rotate_helper.h"
 #include "g3log/filerotatesink.hpp"
 #include "g3log/filesinkhelper.hpp"

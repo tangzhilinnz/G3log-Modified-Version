@@ -22,7 +22,7 @@ namespace g3 {
       
    public:
        // helper function to create an logging sink with filter
-      static std::unique_ptr<FileRotateWithFilter>  CreateLogRotateWithFilter(
+      static std::unique_ptr<FileRotateWithFilter> CreateLogRotateWithFilter(
          std::string filename, std::string directory, std::vector<LEVELS> filter) {
          auto fileRotateUptr = std::make_unique<FileRotateSink>(filename, directory);
          return std::make_unique<FileRotateWithFilter>(std::move(fileRotateUptr), filter);

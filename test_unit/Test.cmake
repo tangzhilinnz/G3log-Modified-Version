@@ -93,7 +93,8 @@
             test_cpp_future_concepts 
             test_concept_sink 
             test_sink
-            test_rotate_file
+            test_rotate_sink
+            test_filter_sink
             ${OS_SPECIFIC_TEST}
         )
      SET(helper ${DIR_UNIT_TEST}/testing_helpers.h ${DIR_UNIT_TEST}/testing_helpers.cpp)
@@ -104,7 +105,7 @@
         SET(all_tests  ${all_tests} ${DIR_UNIT_TEST}/${test}.cpp )
         IF(${test} STREQUAL "test_filechange")
            add_executable(test_filechange ${DIR_UNIT_TEST}/${test}.cpp ${helper})
-        ELSEIF(${test} STREQUAL "test_rotate_file")
+        ELSEIF(${test} STREQUAL "test_rotate_sink" OR ${test} STREQUAL "test_filter_sink")
            add_executable(${test} ${g3log_SOURCE_DIR}/test_main/test_main.cpp ${DIR_UNIT_TEST}/${test}.cpp ${rotate_helper})
         ELSE()
            add_executable(${test} ${g3log_SOURCE_DIR}/test_main/test_main.cpp ${DIR_UNIT_TEST}/${test}.cpp ${helper})

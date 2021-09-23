@@ -9,21 +9,17 @@
 #include <regex>
 
 
-namespace {
-
-    class Comparator {
-    public:
-       bool operator()(const std::pair<long, long>& a, const std::pair<long, long>& b) const {
-          if (a.first < b.first) return true; // archive creation time comparison
-          else if (a.first == b.first) return a.second < b.second; // archive unique number comparison
-          else return false;
-       }
-    };
-
-} // anonymous namespace 
-
 namespace g3 {
    namespace internal {
+      class Comparator {
+      public:
+         bool operator()(const std::pair<long, long>& a, const std::pair<long, long>& b) const {
+            if (a.first < b.first) return true; // archive creation time comparison
+            else if (a.first == b.first) return a.second < b.second; // archive unique number comparison
+            else return false;
+         }
+      };
+
       static const std::string file_name_time_formatted = "%Y%m%d-%H%M%S";
       // In c++11 regex, regex compilation (building up a regex object of string) is really done 
       // at program runtime. The best thing you can do for the sake of speed is to construct a 

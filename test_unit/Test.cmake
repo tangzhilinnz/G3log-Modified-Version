@@ -86,17 +86,29 @@
         SET(OS_SPECIFIC_TEST test_crashhandler_windows)
      ENDIF(MSVC OR MINGW)
 
-     SET(tests_to_run test_message test_filechange test_io test_cpp_future_concepts test_concept_sink test_sink ${OS_SPECIFIC_TEST})
+     SET(tests_to_run
+            test_message 
+            test_filechange 
+            test_io 
+            test_cpp_future_concepts 
+            test_concept_sink 
+            test_sink
+            test_rotate_file
+            ${OS_SPECIFIC_TEST}
+        )
      SET(helper ${DIR_UNIT_TEST}/testing_helpers.h ${DIR_UNIT_TEST}/testing_helpers.cpp)
+     SET(rotate_helper ${DIR_UNIT_TEST}/test_rotate_helper.h ${DIR_UNIT_TEST}/test_rotate_helper.cpp)
      include_directories(${DIR_UNIT_TEST})
 
      FOREACH(test ${tests_to_run} )
         SET(all_tests  ${all_tests} ${DIR_UNIT_TEST}/${test}.cpp )
         IF(${test} STREQUAL "test_filechange")
            add_executable(test_filechange ${DIR_UNIT_TEST}/${test}.cpp ${helper})
+        ELSEIF(${test} STREQUAL "test_rotate_file")
+           add_executable(${test} ${g3log_SOURCE_DIR}/test_main/test_main.cpp ${DIR_UNIT_TEST}/${test}.cpp ${rotate_helper})
         ELSE()
            add_executable(${test} ${g3log_SOURCE_DIR}/test_main/test_main.cpp ${DIR_UNIT_TEST}/${test}.cpp ${helper})
-        ENDIF(${test} STREQUAL "test_filechange")
+        ENDIF()
 
         set_target_properties(${test} PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_TR1_TUPLE=0")
         set_target_properties(${test} PROPERTIES COMPILE_DEFINITIONS "GTEST_HAS_RTTI=0")

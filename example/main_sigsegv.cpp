@@ -8,11 +8,13 @@
 
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
+#include <g3log/ColorCoutSink.hpp>
 
 #include <iomanip>
 #include <thread>
 #include <iostream>
 #include <memory>
+
 namespace
 {
 #if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))
@@ -72,6 +74,9 @@ int main(int argc, char **argv)
    std::unique_ptr<LogWorker> logworker {LogWorker::createLogWorker()};
    auto sinkHandle = logworker->addSink(std::make_unique<FileSink>(/*argv[0]*/log_file, path_to_log_file),
                                         &FileSink::fileWrite);
+
+   auto coutSinkHandle = logworker->addSink(std::make_unique<ColorCoutSink>(),
+                                            &ColorCoutSink::ReceiveLogMessage);
 
    initializeLogging(logworker.get());
    std::future<std::string> log_file_name = sinkHandle->call(&FileSink::fileName);

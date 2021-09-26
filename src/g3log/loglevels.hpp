@@ -44,6 +44,15 @@ struct LEVELS {
       return (value != rhs.value || text != rhs.text);
    }
 
+   bool operator<(const LEVELS& rhs) const {
+      if (value < rhs.value) 
+         return true;
+      else if (value == rhs.value) 
+         return text.compare(rhs.text) < 0;
+      else 
+         return false;
+   }
+
    friend void swap(LEVELS& first, LEVELS& second) {
       using std::swap;
       swap(first.value, second.value);
@@ -121,7 +130,7 @@ namespace g3 {
          return *this;
       }
 
-      bool operator==(const LoggingLevel& rhs)  const {
+      bool operator == (const LoggingLevel& rhs)  const {
          return (status == rhs.status && level == rhs.level);
       }
    };

@@ -844,6 +844,7 @@ namespace termcolor {
 namespace g3 {
 
    using TextAttribute = std::ostream&(*)(std::ostream& stream);
+   using LevelsWithTextAttributes = std::map<LEVELS, std::vector<TextAttribute>>;
 
    // ======================== Foreground Colors ==============================
    extern const TextAttribute FG_black;
@@ -899,34 +900,102 @@ namespace g3 {
    extern const TextAttribute reset;
 
 
+   const LevelsWithTextAttributes K_DEFAULT_COLOR_SETTING = {
+       /*{INFO, std::vector<TextAttribute>{FG_white}},*/
+       { G3LOG_DEBUG, std::vector<g3::TextAttribute>{termcolor::bright_cyan} },
+       { WARNING, std::vector<g3::TextAttribute>{termcolor::yellow} },
+       { FATAL, std::vector<g3::TextAttribute>{termcolor::red} },
+       { g3::internal::CONTRACT, std::vector<g3::TextAttribute>{termcolor::red} },
+       { g3::internal::FATAL_SIGNAL, std::vector<g3::TextAttribute>{termcolor::red} },
+       { g3::internal::FATAL_EXCEPTION, std::vector<g3::TextAttribute>{termcolor::red} }
+   };
+
+
    class ColorCoutSink {
    public:
-      ColorCoutSink();
-      virtual ~ColorCoutSink();
+      ColorCoutSink() : gLevelsWithTextAttributes_(K_DEFAULT_COLOR_SETTING) {}
+
+      virtual ~ColorCoutSink() {
+         std::string exit_msg{ "g3log color cout sink shutdown at: " };
+         auto now = std::chrono::system_clock::now();
+         exit_msg.append(g3::localtime_formatted(now, { g3::internal::date_formatted + " " + g3::internal::time_formatted })).append("\n");
+         std::cerr << exit_msg << std::flush;
+      }
 
       void ReceiveLogMessage(LogMessageMover logEntry) {
          LEVELS& level = logEntry.get()._level;
-         auto iter = gLevelWithTextAttributes_.find(level);
-         if (iter != gLevelWithTextAttributes_.end()) {
+         auto iter = gLevelsWithTextAttributes_.find(level);
+         if (iter != gLevelsWithTextAttributes_.end()) {
             std::vector<TextAttribute>& attributes = iter->second;
             for (int i = 0; i < attributes.size(); i++) {
-               std::cout << (*attributes)();
+               /*std::cout << */(*attributes[i])(std::cout);
             }
          }
 
          std::cout << logEntry.get().toString() << termcolor::reset << std::endl;
       }
 
-      void setColorToWhiteBlack();
-      void setColorToDefault();
+      void setColorToWhiteBlack() {
+         gLevelsWithTextAttributes_.clear();
+      }
+
+      void setColorToDefault() {
+         // std::map<Key,T,Compare,Allocator>::operator=
+         // Copy assignment operator. Replaces the contents with a copy of the contents of other.
+         // If std::allocator_traits<allocator_type>::propagate_on_container_copy_assignment::value
+         // is true, the allocator of *this is replaced by a copy of that of other. 
+         // If the allocator of *this after assignment would compare unequal to its old value, 
+         // the old allocator is used to deallocate the memory, then the new allocator is used
+         // to allocate it before copying the elements. Otherwise, the memory owned by *this 
+         // may be reused when possible. In any case, the elements originally belong to *this
+         // may be either destroyed or replaced by element-wise copy-assignment.
+         gLevelsWithTextAttributes_ = K_DEFAULT_COLOR_SETTING;
+      }
+
       void setColor(std::map<LEVELS, std::vector<TextAttribute>>& levelAttributes);
 
    private:
-      std::map<LEVELS, std::vector<TextAttribute>> gLevelWithTextAttributes_;
+      LevelsWithTextAttributes gLevelsWithTextAttributes_;
 
       ColorCoutSink& operator=(const ColorCoutSink&) = delete;
       ColorCoutSink(const ColorCoutSink& other) = delete;
    };
 
 } // namespace g3
+
+
+// Some rules about definitions (types and functions) in c++ header files:
+
+// Doesn¡¯t defining a class in a header file violate the one-definition rule?
+// It shouldn¡¯t. If your header file has proper header guards, it shouldn¡¯t be 
+// possible to include the class definition more than once into the same file.
+// Types (which include classes), are exempt from the part of the one-definition 
+// rule that says you can only have one definition per program. Therefore, there
+// isn¡¯t an issue #including class definitions into multiple code files (if there
+// was, classes wouldn¡¯t be of much use).
+
+// Doesn¡¯t defining member functions in the header violate the one-definition rule?
+// It depends. Member functions defined inside the class definition are considered 
+// implicitly inline. Inline functions are exempt from the one definition per program
+// part of the one-definition rule. This means there is no problem defining trivial 
+// member functions (such as access functions) inside the class definition itself.
+// Member functions defined outside the class definition are treated like normal 
+// functions, and are subject to the one definition per program part of the 
+// one-definition rule. Therefore, those functions should be defined in a .cpp code
+// file, not inside the header. The one exception for this is for template functions.
+
+// Default parameters:
+// Default parameters for member functions should be declared in the class definition
+// (in the header file), where they can be seen by whomever #includes the header.
+
+// Libraries:
+// Most 3rd party libraries provide only header files, along with a precompiled library
+// file. There are several reasons for this: 
+// 1) It¡¯s faster to link a precompiled library than to recompile it every time
+//    you need it;
+// 2) a single copy of a precompiled library can be shared by many applications, 
+//    whereas compiled code gets compiled into every executable that uses it 
+//    (inflating file sizes);
+// 3) intellectual property reasons (you don¡¯t want people stealing your code).
+//
 

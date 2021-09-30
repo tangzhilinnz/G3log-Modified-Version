@@ -15,9 +15,14 @@ using namespace termcolor::_internal;
    WORD ColorCoutSink::stdoutDefaultAttrs_ = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
    WORD ColorCoutSink::stderrDefaultAttrs_ = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
    bool ColorCoutSink::isVirtualTermSeqs_ = false;
-   static Initialize _(ColorCoutSink::initWin); // _ is the last global variable to be initialized
+   static Initialize _(ColorCoutSink::initWin); // make sure that global variable _ is initialized 
+                                                // after stdoutDefaultAttrs_ and stderrDefaultAttrs_
+                                                // initializations are finished.
+#endif // TERMCOLOR_TARGET_WINDOWS
 
 
+
+#if defined(TERMCOLOR_TARGET_WINDOWS)
    static
    bool enable_virtual_terminal_processing(FILE* stream) {
       HANDLE handle = (HANDLE)_get_osfhandle(_fileno(stream));

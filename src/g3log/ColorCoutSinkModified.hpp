@@ -847,7 +847,7 @@ namespace {
 namespace g3 {
 
    using Setting = void (*)(g3::Attributes& attrs);
-   using LevelsAndSettings = std::map<LEVELS, vector<Setting>>;
+   using LevelsAndSettings = std::map<LEVELS, std::vector<Setting> >;
 
    class ColorCoutSink {
       // friend class declaration
@@ -869,6 +869,9 @@ namespace g3 {
       void overrideLogDetails(LogMessage::LogDetailsFunc func);
 
       void printLogMessage(LogMessageMover logEntry);
+
+   private:
+      void schemeFromSettings(LEVELS& level, std::vector<Setting>& settings);
 
    private:
       ColorCoutSink& operator=(const ColorCoutSink&) = delete;

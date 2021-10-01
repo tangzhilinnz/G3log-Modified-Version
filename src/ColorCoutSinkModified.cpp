@@ -1,4 +1,4 @@
-#include "ColorCoutSinkModified.hpp"
+#include "g3log/ColorCoutSinkModified.hpp"
 #include <mutex>
 
 
@@ -20,7 +20,11 @@ using namespace termcolor::_internal;
                                                 // initializations are finished.
 #endif // TERMCOLOR_TARGET_WINDOWS
 
-
+   const LevelsAndSettings ColorCoutSink::k_DEFAULT_SETTINGS = {
+      { G3LOG_DEBUG, std::vector<Setting>{ FG_cyanB } },
+      { WARNING,     std::vector<Setting>{ FG_yellow } },
+      { FATAL,       std::vector<Setting>{ FG_red } },
+   };
 
 #if defined(TERMCOLOR_TARGET_WINDOWS)
    static
@@ -72,10 +76,18 @@ using namespace termcolor::_internal;
 
 
    void Attributes::setWinDefaultAttrs() {
-      if (&stream_ == &std::cout)
+      if (pStream_ == &std::cout)
          winAttributes_ = ColorCoutSink::stdoutDefaultAttrs_;
-      else if (&stream_ == &std::cerr) {
+      else if (pStream_ == &std::cerr) {
          winAttributes_ = ColorCoutSink::stderrDefaultAttrs_;
+      }
+   }
+
+   WORD ColorCoutSink::getDefaultAttributes() {
+      if (&stream_ == &std::cout)
+         return stdoutDefaultAttrs_;
+      else if (&stream_ == &std::cerr) {
+          return stderrDefaultAttrs_;
       }
    }
 
@@ -83,17 +95,17 @@ using namespace termcolor::_internal;
 
 
 
-   Attributes::Attributes(std::ostream& stream)
+   Attributes::Attributes(std::ostream* pStream)
       : fgColorEscSeqs_("")
       , bgColorEscSeqs_("")
       , attrEscSeqs_("")
 #if defined(TERMCOLOR_TARGET_WINDOWS)
-      , stream_(stream)
+      , pStream_(pStream)
 #endif
    {
 #if defined(TERMCOLOR_TARGET_WINDOWS)
-      if (&stream_ != &std::cout && &stream_ != &std::cerr) {
-         std::cerr << "g3log: forced abort due to illegal std::ostream object used to construct Attributes!!!" << std::endl;
+      if (pStream_ != &std::cout && pStream_ != &std::cerr) {
+         std::cerr << "illegal address of std::ostream object used to construct Attributes!!!" << std::endl;
          abort();
       }
       setWinDefaultAttrs();
@@ -106,7 +118,7 @@ using namespace termcolor::_internal;
       , attrEscSeqs_(other.attrEscSeqs_)
 #if defined(TERMCOLOR_TARGET_WINDOWS)
       , winAttributes_(other.winAttributes_)
-      , stream_(other.stream_)
+      , pStream_(other.pStream_)
 #endif
       { }
 
@@ -116,8 +128,139 @@ using namespace termcolor::_internal;
       , attrEscSeqs_(std::move(other.attrEscSeqs_))
 #if defined(TERMCOLOR_TARGET_WINDOWS)
       , winAttributes_(other.winAttributes_)
-      , stream_(other.stream_)
+      , pStream_(other.pStream_)
 #endif
       { }
+
+   Attributes& Attributes::operator=(Attributes other) {
+      swap(*this, other);
+      return *this;
+   }
+
+
+   // -------------------------------------------------------------------------
+   
+   ColorCoutSink::ColorCoutSink(std::ostream& stream)
+      : stream_(stream) 
+      , logDetailsFunc_(&LogMessage::DefaultLogDetailsToString) 
+      , customSettings_(k_DEFAULT_SETTINGS) {
+
+      if (&stream_ != &std::cout && &stream_ != &std::cerr) {
+         std::cerr << "illegal td::ostream object used to construct ColorCoutSink!!!" << std::endl;
+         abort();
+      }
+
+      settingsToWorkingScheme(k_DEFAULT_SETTINGS);
+   }
+
+
+   ColorCoutSink::ColorCoutSink(std::ostream& stream, const LevelsAndSettings& toCustomScheme)
+      : stream_(stream)
+      , logDetailsFunc_(&LogMessage::DefaultLogDetailsToString)
+      , customSettings_(toCustomScheme) {
+
+      if (&stream_ != &std::cout && &stream_ != &std::cerr) {
+         std::cerr << "illegal td::ostream object used to construct ColorCoutSink!!!" << std::endl;
+         abort();
+      }
+      
+      settingsToWorkingScheme(toCustomScheme);
+   }
+
+
+   ColorCoutSink::~ColorCoutSink() {
+      std::string exit_msg{ "g3log color sink shutdown at: " };
+      auto now = std::chrono::system_clock::now();
+      exit_msg.append(g3::localtime_formatted(now, { g3::internal::date_formatted + " " + g3::internal::time_formatted })).append("\n");
+      std::cerr << exit_msg << std::flush;
+   }
+
+
+   void ColorCoutSink::settingsToWorkingScheme(const LevelsAndSettings& toWorkingScheme) {
+      // The insertion operation happens when gWorkingScheme_ does not have 
+      // LEVELS (key) equivalent to the key of one element in toWorkingScheme, 
+      // otherwise the attributes to LEVELS will be updated to new Settings.
+      for (auto iter = toWorkingScheme.cbegin(); iter != toWorkingScheme.cend(); iter++) {
+
+         LEVELS level = iter->first;
+         const std::vector<Setting>& settings = iter->second;
+
+         auto schemeItemIter = gWorkingScheme_.find(level);
+         if (schemeItemIter != gWorkingScheme_.end()) {
+            Attributes& attrs = schemeItemIter->second;           
+            for (auto manipulation : settings) {
+               (*manipulation)(attrs);
+            }
+         }
+         else {
+            Attributes attrs(&stream_);
+            for (auto manipulation : settings) {
+               (*manipulation)(attrs);
+            }
+
+            gWorkingScheme_.insert(std::pair<LEVELS, Attributes>(level, attrs));
+         }
+      }
+   }
+
+
+   void ColorCoutSink::overrideLogDetails(LogMessage::LogDetailsFunc func) {
+      logDetailsFunc_ = func;
+   }
+
+
+   void ColorCoutSink::blackWhiteScheme() {
+      gWorkingScheme_.clear();
+   }
+
+
+   void ColorCoutSink::printLogMessage(LogMessageMover logEntry) {
+      LEVELS& level = logEntry.get()._level;
+      std::string msg = logEntry.get().toString(logDetailsFunc_);
+      auto iter = gWorkingScheme_.find(level);
+
+      if (iter != gWorkingScheme_.end() && is_atty(stream_)) {
+         Attributes& attrs = iter->second;
+#if defined(TERMCOLOR_TARGET_POSIX)
+         std::string reset{"\033[00m"};
+         std::string msgWithAttrs{ attrs.bgColorEscSeqs_ + 
+                                   attrs.fgColorEscSeqs_ + 
+                                   attrs.attrEscSeqs_ + msg + reset };
+         stream_ << msgWithAttrs << std::endl;
+#elif defined(TERMCOLOR_TARGET_WINDOWS)
+   #if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
+         if (isVirtualTermSeqs_) {
+            std::string reset{ "\033[00m" };
+            std::string msgWithAttrs{ attrs.bgColorEscSeqs_ +
+                                      attrs.fgColorEscSeqs_ +
+                                      attrs.attrEscSeqs_ + msg + reset + "ANSI_ESCAPE" };
+            stream_ << msgWithAttrs << std::endl;
+         }
+         else
+   #endif // TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
+         {
+            HANDLE hTerminal = INVALID_HANDLE_VALUE;
+
+            if (&stream_ == &std::cout)
+               hTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
+            else if (&stream_ == &std::cerr)
+               hTerminal = GetStdHandle(STD_ERROR_HANDLE);
+
+            if (hTerminal == INVALID_HANDLE_VALUE) {
+               stream_ << msg << std::endl;
+            }
+            else {
+               SetConsoleTextAttribute(hTerminal, attrs.winAttributes_);
+               stream_ << msg;
+               SetConsoleTextAttribute(hTerminal, getDefaultAttributes());
+               stream_ << "WINDOWS_API" << std::endl;
+            }
+         }
+#endif
+      }
+      else {
+         stream_ << msg << std::endl;
+      }
+   }
 
 } // namespace g3

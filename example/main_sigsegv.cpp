@@ -8,11 +8,12 @@
 
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
-#include <g3log/ColorCoutSink.hpp>
+#include <g3log/ColorCoutSinkModified.hpp>
 
 #include <iomanip>
 #include <thread>
 #include <iostream>
+#include <fstream> 
 #include <memory>
 
 namespace
@@ -71,12 +72,16 @@ int main(int argc, char **argv)
    using namespace g3;
 
 
+    //std::filebuf fb;
+    //fb.open("test.txt", std::ios::out);
+    //std::ostream os(&fb);
+
    std::unique_ptr<LogWorker> logworker {LogWorker::createLogWorker()};
    auto sinkHandle = logworker->addSink(std::make_unique<FileSink>(/*argv[0]*/log_file, path_to_log_file),
                                         &FileSink::fileWrite);
 
-   auto coutSinkHandle = logworker->addSink(std::make_unique<ColorCoutSink>(),
-                                            &ColorCoutSink::ReceiveLogMessage);
+   auto coutSinkHandle = logworker->addSink(std::make_unique<ColorCoutSink>(/*os*/std::cerr),
+                                            &ColorCoutSink::printLogMessage);
 
    initializeLogging(logworker.get());
    std::future<std::string> log_file_name = sinkHandle->call(&FileSink::fileName);

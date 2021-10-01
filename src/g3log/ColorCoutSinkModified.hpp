@@ -93,17 +93,19 @@
    #define TERMCOLOR_TARGET_POSIX
 #endif
 
+
+#define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
 // If implementation has not been explicitly set, try to choose one based on
 // target platform.
-#if !defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES) && !defined(TERMCOLOR_USE_WINDOWS_API) && !defined(TERMCOLOR_USE_NOOP)
-   #if defined(TERMCOLOR_TARGET_POSIX)
-      #define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
-      #define TERMCOLOR_AUTODETECTED_IMPLEMENTATION
-   #elif defined(TERMCOLOR_TARGET_WINDOWS)
-      #define TERMCOLOR_USE_WINDOWS_API
-      #define TERMCOLOR_AUTODETECTED_IMPLEMENTATION
-   #endif
-#endif
+//#if !defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES) && !defined(TERMCOLOR_USE_WINDOWS_API) && !defined(TERMCOLOR_USE_NOOP)
+//   #if defined(TERMCOLOR_TARGET_POSIX)
+//      #define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
+//      #define TERMCOLOR_AUTODETECTED_IMPLEMENTATION
+//   #elif defined(TERMCOLOR_TARGET_WINDOWS)
+//      #define TERMCOLOR_USE_WINDOWS_API
+//      #define TERMCOLOR_AUTODETECTED_IMPLEMENTATION
+//   #endif
+//#endif
 
 // These headers provide isatty()/fileno() functions, which are used for
 // testing whether a standard stream refers to the terminal.
@@ -117,19 +119,29 @@
 
 namespace g3 {
    struct Attributes {
-      explicit Attributes(std::ostream& stream);
+      explicit Attributes(std::ostream* pStream);
       Attributes(const Attributes& other) noexcept;
       Attributes(Attributes&& other) noexcept;
-      Attributes& operator=(const Attributes&) = delete; // no copy assignment
-      Attributes& operator=(Attributes&&) = delete; // no move assignment
+      Attributes& operator=(Attributes other);
 
       std::string fgColorEscSeqs_;
       std::string bgColorEscSeqs_;
       std::string attrEscSeqs_;
-      //std::string resetEscSeqs_;
+      
+      friend void swap(Attributes& first, Attributes& second) {
+         using std::swap; // enable ADL
+         swap(first.fgColorEscSeqs_, second.fgColorEscSeqs_);
+         swap(first.bgColorEscSeqs_, second.bgColorEscSeqs_);
+         swap(first.attrEscSeqs_, second.attrEscSeqs_);
 
 #if defined(TERMCOLOR_TARGET_WINDOWS)
-      std::ostream& stream_;
+         swap(first.pStream_, second.pStream_);
+         swap(first.winAttributes_, second.winAttributes_);
+#endif
+      }
+
+#if defined(TERMCOLOR_TARGET_WINDOWS)
+      std::ostream* pStream_;
       WORD winAttributes_;
 
       void setWinDefaultAttrs();
@@ -250,6 +262,7 @@ namespace termcolor {
 //#if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
       char ansiEscSeqs[20];
       int n = std::snprintf(ansiEscSeqs, sizeof(ansiEscSeqs), "\033[38;5;%dm", code);
+      if (n < 0) return;
       attrs.fgColorEscSeqs_ = std::string(ansiEscSeqs, n);
 #if defined(TERMCOLOR_TARGET_WINDOWS)
 #endif
@@ -261,6 +274,7 @@ namespace termcolor {
 //#if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
       char ansiEscSeqs[20];
       int n =  std::snprintf(ansiEscSeqs, sizeof(ansiEscSeqs), "\033[48;5;%dm", code);
+      if (n < 0) return;
       attrs.bgColorEscSeqs_ = std::string(ansiEscSeqs, n);
 #if defined(TERMCOLOR_TARGET_WINDOWS)
 #endif
@@ -272,6 +286,7 @@ namespace termcolor {
 //#if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
       char ansiEscSeqs[20];
       int n = std::snprintf(ansiEscSeqs, sizeof(ansiEscSeqs), "\033[38;2;%d;%d;%dm", r, g, b);
+      if (n < 0) return;
       attrs.fgColorEscSeqs_ = std::string(ansiEscSeqs, n);
 #if defined(TERMCOLOR_TARGET_WINDOWS)
 #endif
@@ -283,6 +298,7 @@ namespace termcolor {
 //#if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
       char ansiEscSeqs[20];
       int n = std::snprintf(ansiEscSeqs, sizeof(ansiEscSeqs), "\033[48;2;%d;%d;%dm", r, g, b);
+      if (n < 0) return;
       attrs.bgColorEscSeqs_ = std::string(ansiEscSeqs, n);
 #if defined(TERMCOLOR_TARGET_WINDOWS)
 #endif
@@ -734,10 +750,12 @@ namespace termcolor {
 
          // get terminal handle
          HANDLE hTerminal = INVALID_HANDLE_VALUE;
-         if (&attrs.stream_ == &std::cout)
+         if (attrs.pStream_ == &std::cout)
             hTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
-         else if (&attrs.stream_ == &std::cerr)
+         else if (attrs.pStream_ == &std::cerr)
             hTerminal = GetStdHandle(STD_ERROR_HANDLE);
+         if (hTerminal == INVALID_HANDLE_VALUE)
+            return;
 
          // restore all default settings
          if (foreground == -1 && background == -1) {
@@ -769,8 +787,8 @@ namespace termcolor {
 
          //SetConsoleTextAttribute(hTerminal, info.wAttributes);
       }
-
 #endif // TERMCOLOR_TARGET_WINDOWS
+
 
    } // namespace _internal
 } // namespace termcolor
@@ -856,32 +874,31 @@ namespace g3 {
       using LevelsWithAttributes = std::map<LEVELS, Attributes>;
 
    public:
-      explicit ColorCoutSink(const std::ostream& stream);
-      ColorCoutSink(const std::ostream& stream, const LevelsAndSettings& toCustomScheme);
+      explicit ColorCoutSink(std::ostream& stream);
+      ColorCoutSink(std::ostream& stream, const LevelsAndSettings& toCustomScheme);
       virtual ~ColorCoutSink();
 
-      void setSchemeToDefault();
-      void setSchemeToCustom();
-      void setSchemeToBlackWhite();
-      void setCustomScheme(const LevelsAndSettings& toCustomScheme);
-      void setWorkingScheme(const LevelsAndSettings& toCustomScheme);
+      void defaultScheme();
+      void customScheme();
+      void blackWhiteScheme();
+      void customizetWorkingScheme(const LevelsAndSettings& toWorkingScheme);
 
       void overrideLogDetails(LogMessage::LogDetailsFunc func);
 
       void printLogMessage(LogMessageMover logEntry);
 
    private:
-      void schemeFromSettings(LEVELS& level, std::vector<Setting>& settings);
+      void settingsToWorkingScheme(const LevelsAndSettings& toWorkingScheme);
 
-   private:
       ColorCoutSink& operator=(const ColorCoutSink&) = delete;
       ColorCoutSink(const ColorCoutSink& other) = delete;
 
-      static const LevelsWithAttributes kDefaultScheme_;
-      LevelsWithAttributes customScheme_;
+      static const LevelsAndSettings k_DEFAULT_SETTINGS;
+      LevelsAndSettings customSettings_;
+
       LevelsWithAttributes gWorkingScheme_;
 
-      const std::ostream& stream_;
+      std::ostream& stream_;
 
       LogMessage::LogDetailsFunc logDetailsFunc_;
 
@@ -894,6 +911,8 @@ namespace g3 {
       }
 
    private:
+      WORD getDefaultAttributes();
+
       static WORD stdoutDefaultAttrs_;
       static WORD stderrDefaultAttrs_;
       static bool isVirtualTermSeqs_;

@@ -52,7 +52,7 @@ namespace g3 {
       auto out = msg._logDetailsToStringFunc(msg);
       static const std::string fatalExitReason = { 
           "EXIT trigger caused by LOG(FATAL) entry: " };
-      out.append("\n\t*******\t " + fatalExitReason + "\n\t" + '"' + msg.message() + '"');
+      out.append("\n    *******    " + fatalExitReason + "\n    " + '"' + msg.message() + '"' + '\n');
       return out;
    }
 
@@ -61,28 +61,28 @@ namespace g3 {
       auto out = msg._logDetailsToStringFunc(msg);
       static const std::string contractExitReason = {
           "EXIT trigger caused by broken Contract:" };
-      out.append("\n\t*******\t " + contractExitReason + " CHECK(" + msg.expression() + ")\n\t"
-                 + '"' + msg. message() + '"');
+      out.append("\n    *******    " + contractExitReason + " CHECK(" + msg.expression() + ")\n    "
+                 + '"' + msg. message() + '"' + '\n');
       return out;
    }
 
    // helper for setting the normal log details in an entry
    std::string LogMessage::DefaultLogDetailsToString(const LogMessage& msg) {
       std::string out;
-      out.append(msg.timestamp() + "\t"
+      out.append(msg.timestamp() + "    "
                  + msg.level() 
                  + " [" 
                  + msg.file() 
                  + "->" 
                  + msg.function() 
-                 + ":" + msg.line() + "]\t");
+                 + ":" + msg.line() + "]    ");
       return out;
    }
 
 
    std::string LogMessage::FullLogDetailsToString(const LogMessage& msg) {
       std::string out;
-      out.append(msg.timestamp() + "\t"
+      out.append(msg.timestamp() + "    "
                  + msg.level() 
                  + " [" 
                  + msg.threadID() 
@@ -90,7 +90,7 @@ namespace g3 {
                  + msg.file() 
                  + "->"
                  + msg.function() 
-                 + ":" + msg.line() + "]\t");
+                 + ":" + msg.line() + "]    ");
       return out;
    }
 
@@ -141,7 +141,7 @@ namespace g3 {
       auto out = _logDetailsToStringFunc(*this);
       static const std::string errorUnknown = {
          "UNKNOWN or Custom made Log Message Type" };
-      out.append("\t*******" + errorUnknown + "\n\t" + message() + '\n');
+      out.append("    *******" + errorUnknown + "\n    " + message() + '\n');
       return out;
    }
 

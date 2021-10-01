@@ -21,12 +21,12 @@ using namespace termcolor::_internal;
 #endif // TERMCOLOR_TARGET_WINDOWS
 
    const LevelsAndSettings ColorCoutSink::k_DEFAULT_SETTINGS = {
-      { G3LOG_DEBUG,               std::vector<Setting>{ FG_cyanB } },
+      { G3LOG_DEBUG,               std::vector<Setting>{ BG_blue} },
       { WARNING,                   std::vector<Setting>{ FG_yellow } },
-      { FATAL,                     std::vector<Setting>{ FG_red } },
-      { internal::CONTRACT,        std::vector<Setting>{ FG_red } },
-      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_red } },
-      { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_red } }
+      { FATAL,                     std::vector<Setting>{ FG_red, BG_blue } },
+      { internal::CONTRACT,        std::vector<Setting>{ FG_red, BG_blue } },
+      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_red, BG_blue } },
+      { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_red, BG_blue } }
    };
 
 #if defined(TERMCOLOR_TARGET_WINDOWS)
@@ -228,7 +228,7 @@ using namespace termcolor::_internal;
          Attributes& attrs = iter->second;
 #if defined(TERMCOLOR_TARGET_POSIX)
          std::string reset{"\033[00m"};
-         std::string msgWithAttrs{ attrs.bgColorEscSeqs_ + 
+         std::string msgWithAttrs{ reset + attrs.bgColorEscSeqs_ +
                                    attrs.fgColorEscSeqs_ + 
                                    attrs.attrEscSeqs_ + msg + reset };
          stream_ << msgWithAttrs << std::endl;
@@ -236,9 +236,10 @@ using namespace termcolor::_internal;
    #if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
          if (isVirtualTermSeqs_) {
             std::string reset{ "\033[00m" };
+            msg = msg.substr(0, msg.size() - 1);
             std::string msgWithAttrs{ attrs.bgColorEscSeqs_ +
                                       attrs.fgColorEscSeqs_ +
-                                      attrs.attrEscSeqs_ + msg + reset + "ANSI_ESCAPE" };
+                                      attrs.attrEscSeqs_ + msg + reset };
             stream_ << msgWithAttrs << std::endl;
          }
          else
@@ -258,7 +259,7 @@ using namespace termcolor::_internal;
                SetConsoleTextAttribute(hTerminal, attrs.winAttributes_);
                stream_ << msg;
                SetConsoleTextAttribute(hTerminal, getDefaultAttributes());
-               stream_ << "WINDOWS_API" << std::endl;
+               //stream_ << "WINDOWS_API" << std::endl;
             }
          }
 #endif

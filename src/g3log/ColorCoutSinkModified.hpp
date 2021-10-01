@@ -72,14 +72,14 @@
 // ======================== Attribute Manipulators =========================
 // Windows API only supports underline and reverse when 
 // TERMCOLOR_USE_WINDOWS_API is defined
-#define  ATTR_bold        termcolor::bold
-#define  ATTR_dark        termcolor::dark
-#define  ATTR_italic      termcolor::italic
-#define  ATTR_underline   termcolor::underline
-#define  ATTR_blink       termcolor::blink
-#define  ATTR_reverse     termcolor::reverse
-#define  ATTR_hide        termcolor::concealed
-#define  ATTR_crossed     termcolor::crossed
+#define  ATR_bold         termcolor::bold
+#define  ATR_dark         termcolor::dark
+#define  ATR_italic       termcolor::italic
+#define  ATR_underline    termcolor::underline
+#define  ATR_blink        termcolor::blink
+#define  ATR_reverse      termcolor::reverse
+#define  ATR_hide         termcolor::concealed
+#define  ATR_crossed      termcolor::crossed
 
 // ============================ Reset Manipulator ===========================
 #define  RESET            termcolor::reset
@@ -94,7 +94,7 @@
 #endif
 
 
-#define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
+//#define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
 
 // If implementation has not been explicitly set, try to choose one based on
 // target platform.

@@ -80,7 +80,7 @@ int main(int argc, char **argv)
    auto sinkHandle = logworker->addSink(std::make_unique<FileSink>(/*argv[0]*/log_file, path_to_log_file),
                                         &FileSink::fileWrite);
 
-   auto coutSinkHandle = logworker->addSink(std::make_unique<ColorCoutSink>(/*os*/std::cerr),
+   auto coutSinkHandle = logworker->addSink(std::make_unique<ColorCoutSink>(/*os*/std::cout),
                                             &ColorCoutSink::printLogMessage);
 
    initializeLogging(logworker.get());

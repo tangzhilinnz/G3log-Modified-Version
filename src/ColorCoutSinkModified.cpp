@@ -68,8 +68,10 @@ using namespace termcolor::_internal;
             }
          }
 
+#if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
          isVirtualTermSeqs_ = enable_virtual_terminal_processing(stdout) &&
                               enable_virtual_terminal_processing(stderr);
+#endif
 
          std::cout << "ColorCoutSink::initWin done !!!" << std::endl;
       };

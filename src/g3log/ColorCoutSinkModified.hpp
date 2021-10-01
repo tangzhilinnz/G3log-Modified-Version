@@ -95,6 +95,7 @@
 
 
 #define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
+
 // If implementation has not been explicitly set, try to choose one based on
 // target platform.
 //#if !defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES) && !defined(TERMCOLOR_USE_WINDOWS_API) && !defined(TERMCOLOR_USE_NOOP)

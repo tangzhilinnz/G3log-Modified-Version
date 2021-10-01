@@ -222,21 +222,21 @@ using namespace termcolor::_internal;
    void ColorCoutSink::printLogMessage(LogMessageMover logEntry) {
       LEVELS& level = logEntry.get()._level;
       std::string msg = logEntry.get().toString(logDetailsFunc_);
+      msg = msg.substr(0, msg.size() - 1);
       auto iter = gWorkingScheme_.find(level);
 
       if (iter != gWorkingScheme_.end() && is_atty(stream_)) {
          Attributes& attrs = iter->second;
 #if defined(TERMCOLOR_TARGET_POSIX)
          std::string reset{"\033[00m"};
-         std::string msgWithAttrs{ reset + attrs.bgColorEscSeqs_ +
-                                   attrs.fgColorEscSeqs_ + 
+         std::string msgWithAttrs{ attrs.bgColorEscSeqs_ +
+                                   attrs.fgColorEscSeqs_ +
                                    attrs.attrEscSeqs_ + msg + reset };
          stream_ << msgWithAttrs << std::endl;
 #elif defined(TERMCOLOR_TARGET_WINDOWS)
    #if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
          if (isVirtualTermSeqs_) {
             std::string reset{ "\033[00m" };
-            msg = msg.substr(0, msg.size() - 1);
             std::string msgWithAttrs{ attrs.bgColorEscSeqs_ +
                                       attrs.fgColorEscSeqs_ +
                                       attrs.attrEscSeqs_ + msg + reset };
@@ -259,7 +259,7 @@ using namespace termcolor::_internal;
                SetConsoleTextAttribute(hTerminal, attrs.winAttributes_);
                stream_ << msg;
                SetConsoleTextAttribute(hTerminal, getDefaultAttributes());
-               //stream_ << "WINDOWS_API" << std::endl;
+               stream_ << std::endl;
             }
          }
 #endif

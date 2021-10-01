@@ -21,9 +21,12 @@ using namespace termcolor::_internal;
 #endif // TERMCOLOR_TARGET_WINDOWS
 
    const LevelsAndSettings ColorCoutSink::k_DEFAULT_SETTINGS = {
-      { G3LOG_DEBUG, std::vector<Setting>{ FG_cyanB } },
-      { WARNING,     std::vector<Setting>{ FG_yellow } },
-      { FATAL,       std::vector<Setting>{ FG_red } },
+      { G3LOG_DEBUG,               std::vector<Setting>{ FG_cyanB } },
+      { WARNING,                   std::vector<Setting>{ FG_yellow } },
+      { FATAL,                     std::vector<Setting>{ FG_red } },
+      { internal::CONTRACT,        std::vector<Setting>{ FG_red } },
+      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_red } },
+      { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_red } }
    };
 
 #if defined(TERMCOLOR_TARGET_WINDOWS)

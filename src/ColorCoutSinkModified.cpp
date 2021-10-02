@@ -21,12 +21,12 @@ using namespace termcolor::_internal;
 #endif // TERMCOLOR_TARGET_WINDOWS
 
    const LevelsAndSettings ColorCoutSink::k_DEFAULT_SETTINGS = {
-      { G3LOG_DEBUG,               std::vector<Setting>{ BG_blue} },
-      { WARNING,                   std::vector<Setting>{ FG_yellow } },
-      { FATAL,                     std::vector<Setting>{ FG_red, BG_blue } },
-      { internal::CONTRACT,        std::vector<Setting>{ FG_red, BG_blue } },
-      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_red, BG_blue } },
-      { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_red, BG_blue } }
+      { G3LOG_DEBUG,               std::vector<Setting>{ FG_greenB, BG_RGB(112, 23, 45) } },
+      { WARNING,                   std::vector<Setting>{ FG_redB, BG_redB, ATR_reverse, ATR_dark} },
+      { FATAL,                     std::vector<Setting>{ FG_redB, BG_256(231) } },
+      { internal::CONTRACT,        std::vector<Setting>{ FG_redB, BG_256(231) } },
+      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_redB, BG_256(231) } },
+      { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_redB, BG_256(231), ATR_blink, ATR_crossed } }
    };
 
 #if defined(TERMCOLOR_TARGET_WINDOWS)
@@ -222,25 +222,26 @@ using namespace termcolor::_internal;
    void ColorCoutSink::printLogMessage(LogMessageMover logEntry) {
       LEVELS& level = logEntry.get()._level;
       std::string msg = logEntry.get().toString(logDetailsFunc_);
-      msg = msg.substr(0, msg.size() - 1);
       auto iter = gWorkingScheme_.find(level);
 
       if (iter != gWorkingScheme_.end() && is_atty(stream_)) {
+         msg = msg.substr(0, msg.size() - 1);
+         std::string reset{ "\033[00m" };
          Attributes& attrs = iter->second;
 #if defined(TERMCOLOR_TARGET_POSIX)
-         std::string reset{"\033[00m"};
          std::string msgWithAttrs{ attrs.bgColorEscSeqs_ +
                                    attrs.fgColorEscSeqs_ +
-                                   attrs.attrEscSeqs_ + msg + reset };
-         stream_ << msgWithAttrs << std::endl;
+                                   attrs.attrEscSeqs_ + 
+                                   msg + reset + "\n" };
+         stream_ << msgWithAttrs.c_str() << std::flush;
 #elif defined(TERMCOLOR_TARGET_WINDOWS)
    #if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
          if (isVirtualTermSeqs_) {
-            std::string reset{ "\033[00m" };
             std::string msgWithAttrs{ attrs.bgColorEscSeqs_ +
                                       attrs.fgColorEscSeqs_ +
-                                      attrs.attrEscSeqs_ + msg + reset };
-            stream_ << msgWithAttrs << std::endl;
+                                      attrs.attrEscSeqs_ + 
+                                      msg + reset+ "\n"};
+            stream_ << msgWithAttrs.c_str() << std::flush;
          }
          else
    #endif // TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
@@ -253,19 +254,19 @@ using namespace termcolor::_internal;
                hTerminal = GetStdHandle(STD_ERROR_HANDLE);
 
             if (hTerminal == INVALID_HANDLE_VALUE) {
-               stream_ << msg << std::endl;
+               stream_ << msg + "\n" << std::flush;
             }
             else {
                SetConsoleTextAttribute(hTerminal, attrs.winAttributes_);
-               stream_ << msg;
+               stream_ << msg + "\n";
                SetConsoleTextAttribute(hTerminal, getDefaultAttributes());
-               stream_ << std::endl;
+               stream_ << std::flush;
             }
          }
 #endif
       }
       else {
-         stream_ << msg << std::endl;
+         stream_ << msg << std::flush;
       }
    }
 

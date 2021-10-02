@@ -77,18 +77,18 @@ int main(int argc, char **argv)
     //std::ostream os(&fb);
 
    std::unique_ptr<LogWorker> logworker {LogWorker::createLogWorker()};
-   auto sinkHandle = logworker->addSink(std::make_unique<FileSink>(/*argv[0]*/log_file, path_to_log_file),
-                                        &FileSink::fileWrite);
+   //auto sinkHandle = logworker->addSink(std::make_unique<FileSink>(/*argv[0]*/log_file, path_to_log_file),
+   //                                     &FileSink::fileWrite);
 
    auto coutSinkHandle = logworker->addSink(std::make_unique<ColorCoutSink>(/*os*/std::cout),
                                             &ColorCoutSink::printLogMessage);
 
    initializeLogging(logworker.get());
-   std::future<std::string> log_file_name = sinkHandle->call(&FileSink::fileName);
+   //std::future<std::string> log_file_name = sinkHandle->call(&FileSink::fileName);
    std::cout << "*   This is an example of g3log. It WILL exit by a FATAL trigger" << std::endl;
    std::cout << "*   Please see the generated log and compare to the code at" << std::endl;
    std::cout << "*   g3log/test_example/main.cpp" << std::endl;
-   std::cout << "*\n* Log file: [" << log_file_name.get() << "]\n\n" << std::endl;
+   //std::cout << "*\n* Log file: [" << log_file_name.get() << "]\n\n" << std::endl;
 
 
    LOGF(INFO, "Hi log %d", 123);

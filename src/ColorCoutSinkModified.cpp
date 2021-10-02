@@ -22,11 +22,11 @@ using namespace termcolor::_internal;
 
    const LevelsAndSettings ColorCoutSink::k_DEFAULT_SETTINGS = {
       { G3LOG_DEBUG,               std::vector<Setting>{ FG_greenB, BG_RGB(112, 23, 45) } },
-      { WARNING,                   std::vector<Setting>{ FG_redB, BG_redB, ATR_reverse, ATR_dark, ATR_crossed, ATR_bold} },
-      { FATAL,                     std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed } },
-      { internal::CONTRACT,        std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed } },
-      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed } },
-      { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed } }
+      { WARNING,                   std::vector<Setting>{ FG_whiteB, ATR_underline, BG_RGB(112, 23, 45), ATR_bold, ATR_reverse} },
+      { FATAL,                     std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic} },
+      { internal::CONTRACT,        std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic } },
+      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic} },
+      { internal::FATAL_EXCEPTION, std::vector<Setting>{ ATR_underline, FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic } }
    };
 
 #if defined(TERMCOLOR_TARGET_WINDOWS)
@@ -254,13 +254,13 @@ using namespace termcolor::_internal;
                hTerminal = GetStdHandle(STD_ERROR_HANDLE);
 
             if (hTerminal == INVALID_HANDLE_VALUE) {
-               stream_ << msg + "\n" << std::flush;
+               stream_ << msg << std::endl;
             }
             else {
                SetConsoleTextAttribute(hTerminal, attrs.winAttributes_);
-               stream_ << msg + "\n";
+               stream_ << msg /*+ "\n" << std::flush*/;
                SetConsoleTextAttribute(hTerminal, getDefaultAttributes());
-               stream_ << std::flush;
+               stream_ << std::endl;
             }
          }
 #endif

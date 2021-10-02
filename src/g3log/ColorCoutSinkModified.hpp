@@ -94,7 +94,7 @@
 #endif
 
 
-//#define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
+#define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
 
 // If implementation has not been explicitly set, try to choose one based on
 // target platform.
@@ -750,13 +750,13 @@ namespace termcolor {
             return;*/
 
          // get terminal handle
-         HANDLE hTerminal = INVALID_HANDLE_VALUE;
-         if (attrs.pStream_ == &std::cout)
-            hTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
-         else if (attrs.pStream_ == &std::cerr)
-            hTerminal = GetStdHandle(STD_ERROR_HANDLE);
-         if (hTerminal == INVALID_HANDLE_VALUE)
-            return;
+         //HANDLE hTerminal = INVALID_HANDLE_VALUE;
+         //if (attrs.pStream_ == &std::cout)
+         //   hTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
+         //else if (attrs.pStream_ == &std::cerr)
+         //   hTerminal = GetStdHandle(STD_ERROR_HANDLE);
+         //if (hTerminal == INVALID_HANDLE_VALUE)
+         //   return;
 
          // restore all default settings
          if (foreground == -1 && background == -1) {
@@ -764,28 +764,32 @@ namespace termcolor {
          }
 
          // get current settings
-         CONSOLE_SCREEN_BUFFER_INFO info;
-         if (!GetConsoleScreenBufferInfo(hTerminal, &info))
-            return;
+         //CONSOLE_SCREEN_BUFFER_INFO info;
+         //if (!GetConsoleScreenBufferInfo(hTerminal, &info))
+         //   return;
 
          if (foreground != -1) {
-            info.wAttributes &= ~(info.wAttributes & 0x0F);
-            info.wAttributes |= static_cast<WORD>(foreground);
+            //info.wAttributes &= ~(info.wAttributes & 0x0F);
+            //info.wAttributes |= static_cast<WORD>(foreground);
+            attrs.winAttributes_ &= ~(attrs.winAttributes_ & 0x000F);
+            attrs.winAttributes_ |= static_cast<WORD>(foreground);
          }
 
          if (background == COMMON_LVB_REVERSE_VIDEO ||
              background == COMMON_LVB_UNDERSCORE) {
-            info.wAttributes |= static_cast<WORD>(background);
+            //info.wAttributes |= static_cast<WORD>(background);
+            attrs.winAttributes_ |= static_cast<WORD>(background);
          }
 
          if (background != -1 && background != COMMON_LVB_REVERSE_VIDEO &&
              background != COMMON_LVB_UNDERSCORE) {
-            info.wAttributes &= ~(info.wAttributes & 0xF0);
-            info.wAttributes |= static_cast<WORD>(background);
+            //info.wAttributes &= ~(info.wAttributes & 0xF0);
+            //info.wAttributes |= static_cast<WORD>(background);
+            attrs.winAttributes_ &= ~(attrs.winAttributes_ & 0x00F0);
+            attrs.winAttributes_ |= static_cast<WORD>(background);
          }
 
-         attrs.winAttributes_ = info.wAttributes;
-
+         //attrs.winAttributes_ = info.wAttributes;
          //SetConsoleTextAttribute(hTerminal, info.wAttributes);
       }
 #endif // TERMCOLOR_TARGET_WINDOWS

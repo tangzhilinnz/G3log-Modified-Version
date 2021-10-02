@@ -22,11 +22,11 @@ using namespace termcolor::_internal;
 
    const LevelsAndSettings ColorCoutSink::k_DEFAULT_SETTINGS = {
       { G3LOG_DEBUG,               std::vector<Setting>{ FG_greenB, BG_RGB(112, 23, 45) } },
-      { WARNING,                   std::vector<Setting>{ FG_redB, BG_redB, ATR_reverse, ATR_dark} },
-      { FATAL,                     std::vector<Setting>{ FG_redB, BG_256(231) } },
-      { internal::CONTRACT,        std::vector<Setting>{ FG_redB, BG_256(231) } },
-      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_redB, BG_256(231) } },
-      { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_redB, BG_256(231), ATR_blink, ATR_crossed } }
+      { WARNING,                   std::vector<Setting>{ FG_redB, BG_redB, ATR_reverse, ATR_dark, ATR_crossed, ATR_bold} },
+      { FATAL,                     std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed } },
+      { internal::CONTRACT,        std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed } },
+      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed } },
+      { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed } }
    };
 
 #if defined(TERMCOLOR_TARGET_WINDOWS)

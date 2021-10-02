@@ -483,9 +483,9 @@ namespace termcolor {
 
    static inline
    void on_black(g3::Attributes& attrs) {
-#if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
+//#if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
       attrs.bgColorEscSeqs_ = std::string("\033[40m");
-#elif defined(TERMCOLOR_TARGET_WINDOWS)
+#if defined(TERMCOLOR_TARGET_WINDOWS)
       _internal::win_change_attributes(attrs, -1,
          0
       );

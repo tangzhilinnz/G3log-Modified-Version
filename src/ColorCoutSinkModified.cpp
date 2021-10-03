@@ -15,6 +15,9 @@ using namespace termcolor::_internal;
    WORD ColorCoutSink::stdoutDefaultAttrs_ = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
    WORD ColorCoutSink::stderrDefaultAttrs_ = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
    bool ColorCoutSink::isVirtualTermSeqs_ = false;
+
+   static Initialize ___(ColorCoutSink::initWin);
+   static Initialize __(ColorCoutSink::initWin);
    static Initialize _(ColorCoutSink::initWin); // make sure that global variable _ is initialized 
                                                 // after stdoutDefaultAttrs_ and stderrDefaultAttrs_
                                                 // initializations are finished.
@@ -22,7 +25,7 @@ using namespace termcolor::_internal;
 
    const LevelsAndSettings ColorCoutSink::k_DEFAULT_SETTINGS = {
       { G3LOG_DEBUG,               std::vector<Setting>{ FG_greenB, BG_RGB(112, 23, 45) } },
-      { WARNING,                   std::vector<Setting>{ FG_whiteB, ATR_underline, BG_RGB(112, 23, 45), ATR_bold, ATR_reverse} },
+      { WARNING,                   std::vector<Setting>{ FG_whiteB, ATR_underline, BG_blueB, BG_RGB(112, 23, 45), ATR_bold, ATR_reverse} },
       { FATAL,                     std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic} },
       { internal::CONTRACT,        std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic } },
       { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic} },
@@ -148,28 +151,28 @@ using namespace termcolor::_internal;
    ColorCoutSink::ColorCoutSink(std::ostream& stream)
       : stream_(stream) 
       , logDetailsFunc_(&LogMessage::DefaultLogDetailsToString) 
-      , customSettings_(k_DEFAULT_SETTINGS) {
+      , defaultSettings_(k_DEFAULT_SETTINGS) {
 
       if (&stream_ != &std::cout && &stream_ != &std::cerr) {
          std::cerr << "illegal td::ostream object used to construct ColorCoutSink!!!" << std::endl;
          abort();
       }
 
-      settingsToWorkingScheme(k_DEFAULT_SETTINGS);
+      settingsToWorkingScheme(k_DEFAULT_SETTINGS, true);
    }
 
 
-   ColorCoutSink::ColorCoutSink(std::ostream& stream, const LevelsAndSettings& toCustomScheme)
+   ColorCoutSink::ColorCoutSink(std::ostream& stream, const LevelsAndSettings& defaultSettings)
       : stream_(stream)
       , logDetailsFunc_(&LogMessage::DefaultLogDetailsToString)
-      , customSettings_(toCustomScheme) {
+      , defaultSettings_(defaultSettings) {
 
       if (&stream_ != &std::cout && &stream_ != &std::cerr) {
          std::cerr << "illegal td::ostream object used to construct ColorCoutSink!!!" << std::endl;
          abort();
       }
       
-      settingsToWorkingScheme(toCustomScheme);
+      settingsToWorkingScheme(defaultSettings, true);
    }
 
 
@@ -181,7 +184,10 @@ using namespace termcolor::_internal;
    }
 
 
-   void ColorCoutSink::settingsToWorkingScheme(const LevelsAndSettings& toWorkingScheme) {
+   void ColorCoutSink::settingsToWorkingScheme(const LevelsAndSettings& toWorkingScheme, bool clearFlag) {
+      if (clearFlag) {
+         gWorkingScheme_.clear();
+      }
       // The insertion operation happens when gWorkingScheme_ does not have 
       // LEVELS (key) equivalent to the key of one element in toWorkingScheme, 
       // otherwise the attributes to LEVELS will be updated to new Settings.
@@ -197,7 +203,7 @@ using namespace termcolor::_internal;
                (*manipulation)(attrs);
             }
          }
-         else {
+         else { // schemeItemIter == gWorkingScheme_.end()
             Attributes attrs(&stream_);
             for (auto manipulation : settings) {
                (*manipulation)(attrs);
@@ -211,11 +217,6 @@ using namespace termcolor::_internal;
 
    void ColorCoutSink::overrideLogDetails(LogMessage::LogDetailsFunc func) {
       logDetailsFunc_ = func;
-   }
-
-
-   void ColorCoutSink::blackWhiteScheme() {
-      gWorkingScheme_.clear();
    }
 
 
@@ -268,6 +269,31 @@ using namespace termcolor::_internal;
       else {
          stream_ << msg << std::flush;
       }
+   }
+
+
+   void ColorCoutSink::setWorkingScheme(const LevelsAndSettings& toWorkingScheme) {
+      settingsToWorkingScheme(toWorkingScheme, false);
+   }
+
+
+   void ColorCoutSink::setDefaultScheme(const LevelsAndSettings& defaultSettings) {
+      defaultSettings_ = defaultSettings;
+   }
+
+
+   void ColorCoutSink::defaultScheme() {
+      settingsToWorkingScheme(defaultSettings_, true);
+   }
+
+
+   void ColorCoutSink::systemDefaultScheme() {
+      settingsToWorkingScheme(k_DEFAULT_SETTINGS, true);
+   }
+
+
+   void ColorCoutSink::blackWhiteScheme() {
+       gWorkingScheme_.clear();
    }
 
 } // namespace g3

@@ -749,48 +749,26 @@ namespace termcolor {
          /*if (!_internal::is_atty(stream))
             return;*/
 
-         // get terminal handle
-         //HANDLE hTerminal = INVALID_HANDLE_VALUE;
-         //if (attrs.pStream_ == &std::cout)
-         //   hTerminal = GetStdHandle(STD_OUTPUT_HANDLE);
-         //else if (attrs.pStream_ == &std::cerr)
-         //   hTerminal = GetStdHandle(STD_ERROR_HANDLE);
-         //if (hTerminal == INVALID_HANDLE_VALUE)
-         //   return;
-
          // restore all default settings
          if (foreground == -1 && background == -1) {
             attrs.setWinDefaultAttrs();
          }
 
-         // get current settings
-         //CONSOLE_SCREEN_BUFFER_INFO info;
-         //if (!GetConsoleScreenBufferInfo(hTerminal, &info))
-         //   return;
-
          if (foreground != -1) {
-            //info.wAttributes &= ~(info.wAttributes & 0x0F);
-            //info.wAttributes |= static_cast<WORD>(foreground);
             attrs.winAttributes_ &= ~(attrs.winAttributes_ & 0x000F);
             attrs.winAttributes_ |= static_cast<WORD>(foreground);
          }
 
          if (background == COMMON_LVB_REVERSE_VIDEO ||
              background == COMMON_LVB_UNDERSCORE) {
-            //info.wAttributes |= static_cast<WORD>(background);
             attrs.winAttributes_ |= static_cast<WORD>(background);
          }
 
          if (background != -1 && background != COMMON_LVB_REVERSE_VIDEO &&
              background != COMMON_LVB_UNDERSCORE) {
-            //info.wAttributes &= ~(info.wAttributes & 0xF0);
-            //info.wAttributes |= static_cast<WORD>(background);
             attrs.winAttributes_ &= ~(attrs.winAttributes_ & 0x00F0);
             attrs.winAttributes_ |= static_cast<WORD>(background);
          }
-
-         //attrs.winAttributes_ = info.wAttributes;
-         //SetConsoleTextAttribute(hTerminal, info.wAttributes);
       }
 #endif // TERMCOLOR_TARGET_WINDOWS
 
@@ -880,26 +858,27 @@ namespace g3 {
 
    public:
       explicit ColorCoutSink(std::ostream& stream);
-      ColorCoutSink(std::ostream& stream, const LevelsAndSettings& toCustomScheme);
+      ColorCoutSink(std::ostream& stream, const LevelsAndSettings& defaultSettings);
       virtual ~ColorCoutSink();
 
       void defaultScheme();
-      void customScheme();
+      void systemDefaultScheme();
       void blackWhiteScheme();
-      void customizetWorkingScheme(const LevelsAndSettings& toWorkingScheme);
+      void setWorkingScheme(const LevelsAndSettings& toWorkingScheme);
+      void setDefaultScheme(const LevelsAndSettings& defaultSettings);
 
       void overrideLogDetails(LogMessage::LogDetailsFunc func);
 
       void printLogMessage(LogMessageMover logEntry);
 
    private:
-      void settingsToWorkingScheme(const LevelsAndSettings& toWorkingScheme);
+      void settingsToWorkingScheme(const LevelsAndSettings& toWorkingScheme, bool clearFlag);
 
       ColorCoutSink& operator=(const ColorCoutSink&) = delete;
       ColorCoutSink(const ColorCoutSink& other) = delete;
 
       static const LevelsAndSettings k_DEFAULT_SETTINGS;
-      LevelsAndSettings customSettings_;
+      LevelsAndSettings defaultSettings_;
 
       LevelsWithAttributes gWorkingScheme_;
 

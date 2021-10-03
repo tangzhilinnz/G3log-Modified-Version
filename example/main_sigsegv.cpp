@@ -80,7 +80,14 @@ int main(int argc, char **argv)
    //auto sinkHandle = logworker->addSink(std::make_unique<FileSink>(/*argv[0]*/log_file, path_to_log_file),
    //                                     &FileSink::fileWrite);
 
-   auto coutSinkHandle = logworker->addSink(std::make_unique<ColorCoutSink>(/*os*/std::cout),
+   auto coutSinkHandle = logworker->addSink(std::make_unique<ColorCoutSink>(/*os*/std::cout, 
+                                                                            LevelsAndSettings{
+                                                                               { G3LOG_DEBUG,               std::vector<Setting>{ FG_cyanB} },
+                                                                               { WARNING,                   std::vector<Setting>{ FG_yellow} },
+                                                                               { FATAL,                     std::vector<Setting>{ FG_red} },
+                                                                               { internal::CONTRACT,        std::vector<Setting>{ FG_red} },
+                                                                               { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_red} },
+                                                                               { internal::FATAL_EXCEPTION, std::vector<Setting>{ FG_red} } }),
                                             &ColorCoutSink::printLogMessage);
 
    initializeLogging(logworker.get());
@@ -108,6 +115,8 @@ int main(int argc, char **argv)
    //
    //LOG(UNKNOWN_LEVEL) << "This log attempt will cause a compiler error";
 
+   coutSinkHandle->call(&ColorCoutSink::systemDefaultScheme).wait();
+
    LOG(INFO) << "Simple to use with streaming syntax, easy as abc or " << 123;
    LOGF(WARNING, "Printf-style syntax is also %s", "available");
    LOG_IF(INFO, (1 < 2)) << "If true this text will be logged";
@@ -115,6 +124,8 @@ int main(int argc, char **argv)
    LOG_IF(FATAL, (2 > 3)) << "This message should NOT throw";
    LOGF(G3LOG_DEBUG, "This API is popular with some %s", "programmers");
    LOGF_IF(G3LOG_DEBUG, (1 < 2), "If true, then this %s will be logged", "message");
+
+   coutSinkHandle->call(&ColorCoutSink::defaultScheme).wait();
 
    // OK --- on Ubunti this caused get a compiler warning with gcc4.6
    // from gcc 4.7.2 (at least) it causes a crash (as expected)

@@ -47,7 +47,7 @@ namespace g3 {
       // You must ensure that func has no argument and may has a return value or no return.
       // worker is Active* type that can be retrieved by std::unique_ptr<T,Deleter>::get
       typedef std::invoke_result_t<Func> result_type;
-      typedef std::packaged_task<result_type()> task_type;
+      typedef std::packaged_task<result_type()> packaged_task_type;
 
       if (nullptr == worker) {
          // If you provide a value to the std::promise before destroying it, 
@@ -68,15 +68,15 @@ namespace g3 {
       // is stored in a shared state which can be accessed through std::future objects.
       // template <class F>
       // explicit packaged_task( F&& f );
-      task_type task(std::move(func));
+      packaged_task_type pacTask(std::move(func));
 
-      std::future<result_type> result = task.get_future();
+      std::future<result_type> result = pacTask.get_future();
       // moveoncopy.hpp  g3::MoveOnCopy::MoveOnCopy
       // template<typename Moveable> explicit MoveOnCopy(Moveable&& m);
       // void operator()() {
       //    _move_only();
       // }
-      worker->send(MoveOnCopy<task_type>(std::move(task)));
+      worker->send(MoveOnCopy<packaged_task_type>(std::move(pacTask)));
       return result; // Move construct a std::future
    }
 } // end namespace g3

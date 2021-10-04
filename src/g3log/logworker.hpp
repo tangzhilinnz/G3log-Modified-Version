@@ -158,6 +158,20 @@ namespace g3 {
          }
       }
 
+
+      // for test: hot update sink
+      template<typename T, typename AsyncCall, typename... Args>
+      void hotUpdateSink(SinkHandle<T>* p_sink_handle, AsyncCall func, Args&& ... args) {
+         if (nullptr != p_sink_handle) {
+            auto bg_hot_update_sink_call = [p_sink_handle, func] {
+               p_sink_handle->call(func, std::forward<Args>(args)...);
+            };
+            _impl._bg->send(MoveOnCopy(std::move(bg_hot_update_sink_call)));
+         }
+      } // func must be a member function pointer of class T
+
+
+
       /// This will clear/remove all the sinks. If a sink shared_ptr was retrieved via the sink
       /// handle then the sink will be removed internally but will live on in the client's instance
       void removeAllSinks() {

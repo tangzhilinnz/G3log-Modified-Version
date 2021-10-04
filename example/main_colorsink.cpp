@@ -106,6 +106,7 @@ int main(int argc, char** argv) {
    
    //coutSinkHandle->call(&ColorCoutSink::defaultScheme).wait();
    logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::defaultScheme);
+   logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::overrideLogDetails, &LogMessage::FullLogDetailsToString);
 
    LOGF(INFO, "Hi log %d", 123);
    LOG(INFO) << "Test SLOG INFO";
@@ -137,7 +138,16 @@ int main(int argc, char** argv) {
    LOG(G3LOG_DEBUG) << "pi float (width 10): " << std::setprecision(10) << pi_f;
    LOGF(INFO, "pi float printf:%f", pi_f);
 
-   logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::systemDefaultScheme);
+   LevelsAndSettings settings{
+      { INFO,                      std::vector<Setting>{ FG_magenta, BG_blueB, ATR_crossed, ATR_blink} },
+      { G3LOG_DEBUG,               std::vector<Setting>{ FG_greenB, BG_RGB(112, 23, 45) } },
+      { WARNING,                   std::vector<Setting>{ FG_whiteB, ATR_underline, BG_blueB, BG_RGB(112, 23, 45), ATR_bold, ATR_reverse} },
+      { FATAL,                     std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic} },
+      { internal::CONTRACT,        std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic } },
+      { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic} },
+      { internal::FATAL_EXCEPTION, std::vector<Setting>{ ATR_underline, FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic }}};
+
+   logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::setWorkingScheme, settings);
 
    LOGF(INFO, "Hi log %d", 123);
    LOG(INFO) << "Test SLOG INFO";
@@ -161,9 +171,7 @@ int main(int argc, char** argv) {
    // try 2
    std::unique_ptr<std::string> badStringPtr;
    example_fatal::tryToKillWithAccessingIllegalPointer(std::move(badStringPtr));
-
-   // what happened? OK. let us just exit with SIGFPE
-   
+   // what happened? OK. let us just exit with SIGFPE 
    int value = 1;    // system dependent but it SHOULD never reach this line
    example_fatal::killByZeroDivision(value);
    return 0;

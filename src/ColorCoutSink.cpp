@@ -1,4 +1,4 @@
-#include "g3log/ColorCoutSinkModified.hpp"
+#include "g3log/ColorCoutSink.hpp"
 #include <mutex>
 
 

@@ -159,14 +159,18 @@ namespace g3 {
       }
 
 
-      // for test: hot update sink
+      // for test: hot update sink through pointer of SinkHandle<T> object
       template<typename T, typename AsyncCall, typename... Args>
       void hotUpdateSink(SinkHandle<T>* p_sink_handle, AsyncCall func, Args&& ... args) {
          if (nullptr != p_sink_handle) {
-            auto bg_hot_update_sink_call = [p_sink_handle, func] {
-               p_sink_handle->call(func, std::forward<Args>(args)...);
+            auto sink_handle_call_with_args = [p_sink_handle, func](auto&&... args) {
+               p_sink_handle->call(func, args...);
             };
-            _impl._bg->send(MoveOnCopy(std::move(bg_hot_update_sink_call)));
+
+            auto bg_hot_update_sink = std::bind(std::move(sink_handle_call_with_args),
+                                                std::forward<Args>(args)...);
+
+            _impl._bg->send(MoveOnCopy(std::move(bg_hot_update_sink)));
          }
       } // func must be a member function pointer of class T
 

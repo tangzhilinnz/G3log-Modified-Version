@@ -21,7 +21,9 @@ namespace g3 {
       , _log_file_with_path(log_directory)
       , _log_prefix_backup(log_prefix)
       //, _outptr(new std::ofstream)
-      , _header("\t\tLOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL FILE->FUNCTION:LINE] message\n\n\t\t(uuu*: microseconds fractions of the seconds value)\n\n")
+      , _header("\n\t\tLOG format: YYYY/MM/DD hh:mm:ss uuu* LEVEL THREAD_ID FILE->FUNCTION:LINE] message\n"
+                "\t\t(uuu*: microseconds fractions of the seconds value)\n"
+                "\t\t(THREAD_ID is optional and is not displayed by default)\n\n")
       , _firstEntry(true) {
 
       _log_prefix_backup = prefixSanityFix(log_prefix);
@@ -115,9 +117,6 @@ namespace g3 {
 
    void FileSink::overrideLogDetails(LogMessage::LogDetailsFunc func) {
       _log_details_func = func;
-      const std::string newHeader =
-         "\t\tLOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL THREAD_ID FILE->FUNCTION:LINE] message\n\t\t(uuu*: microseconds fractions of the seconds value)\n\n";
-      overrideLogHeader(newHeader);
    }
 
    void FileSink::overrideLogHeader(const std::string& change) {

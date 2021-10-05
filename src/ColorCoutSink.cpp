@@ -16,8 +16,6 @@ using namespace termcolor::_internal;
    WORD ColorCoutSink::stderrDefaultAttrs_ = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
    bool ColorCoutSink::isVirtualTermSeqs_ = false;
 
-   static Initialize ___(ColorCoutSink::initWin);
-   static Initialize __(ColorCoutSink::initWin);
    static Initialize _(ColorCoutSink::initWin); // make sure that global variable _ is initialized 
                                                 // after stdoutDefaultAttrs_ and stderrDefaultAttrs_
                                                 // initializations are finished.
@@ -114,7 +112,7 @@ using namespace termcolor::_internal;
    {
 #if defined(TERMCOLOR_TARGET_WINDOWS)
       if (pStream_ != &std::cout && pStream_ != &std::cerr) {
-         std::cerr << "illegal address of std::ostream object used to construct Attributes!!!" << std::endl;
+         std::cerr << "illegal std::ostream object used to construct Attributes!!!" << std::endl;
          abort();
       }
       setWinDefaultAttrs();
@@ -178,7 +176,7 @@ using namespace termcolor::_internal;
 
 
    ColorCoutSink::~ColorCoutSink() {
-      std::string exit_msg{ "g3log color sink shutdown at: " };
+      std::string exit_msg{ "g3log color cout sink shutdown at: " };
       auto now = std::chrono::system_clock::now();
       exit_msg.append(g3::localtime_formatted(now, { g3::internal::date_formatted + " " + g3::internal::time_formatted })).append("\n");
       std::cerr << exit_msg << std::flush;

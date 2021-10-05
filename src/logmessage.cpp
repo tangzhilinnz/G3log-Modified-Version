@@ -69,28 +69,28 @@ namespace g3 {
    // helper for setting the normal log details in an entry
    std::string LogMessage::DefaultLogDetailsToString(const LogMessage& msg) {
       std::string out;
-      out.append(msg.timestamp() + "    "
+      out.append(msg.timestamp() + " "
                  + msg.level() 
-                 + " [" 
+                 + " " // " [" 
                  + msg.file() 
                  + "->" 
                  + msg.function() 
-                 + ":" + msg.line() + "]    ");
+                 + ":" + msg.line() + "] ");
       return out;
    }
 
 
    std::string LogMessage::FullLogDetailsToString(const LogMessage& msg) {
       std::string out;
-      out.append(msg.timestamp() + "    "
+      out.append(msg.timestamp() + " "
                  + msg.level() 
-                 + " [" 
+                 +  " " // " [" 
                  + msg.threadID() 
                  + " "
                  + msg.file() 
                  + "->"
                  + msg.function() 
-                 + ":" + msg.line() + "]    ");
+                 + ":" + msg.line() + "] ");
       return out;
    }
 

@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
    //LOG(UNKNOWN_LEVEL) << "This log attempt will cause a compiler error";
 
    //coutSinkHandle->call(&ColorCoutSink::systemDefaultScheme).wait();
-   logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::systemDefaultScheme);
+   logworker->hotUpdateSink(coutSinkHandle->sink().lock(), &ColorCoutSink::systemDefaultScheme);
 
    LOG(INFO) << "Simple to use with streaming syntax, easy as abc or " << 123;
    LOGF(WARNING, "Printf-style syntax is also %s", "available");
@@ -105,8 +105,8 @@ int main(int argc, char** argv) {
    LOGF_IF(G3LOG_DEBUG, (1 < 2), "If true, then this %s will be logged", "message");
    
    //coutSinkHandle->call(&ColorCoutSink::defaultScheme).wait();
-   logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::defaultScheme);
-   logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::overrideLogDetails, &LogMessage::FullLogDetailsToString);
+   logworker->hotUpdateSink(coutSinkHandle->sink().lock(), &ColorCoutSink::defaultScheme);
+   logworker->hotUpdateSink(coutSinkHandle->sink().lock(), &ColorCoutSink::overrideLogDetails, &LogMessage::FullLogDetailsToString);
 
    LOGF(INFO, "Hi log %d", 123);
    LOG(INFO) << "Test SLOG INFO";
@@ -122,7 +122,7 @@ int main(int argc, char** argv) {
    LOG(G3LOG_DEBUG) << "pi float (width 10): " << std::setprecision(10) << pi_f;
    LOGF(INFO, "pi float printf:%f", pi_f);
 
-   logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::blackWhiteScheme);
+   logworker->hotUpdateSink(coutSinkHandle->sink().lock(), &ColorCoutSink::blackWhiteScheme);
 
    LOGF(INFO, "Hi log %d", 123);
    LOG(INFO) << "Test SLOG INFO";
@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
       { internal::FATAL_SIGNAL,    std::vector<Setting>{ FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic} },
       { internal::FATAL_EXCEPTION, std::vector<Setting>{ ATR_underline, FG_grey, BG_256(7), ATR_bold, ATR_crossed, ATR_blink, ATR_italic }}};
 
-   logworker->hotUpdateSink(coutSinkHandle.get(), &ColorCoutSink::setWorkingScheme, settings);
+   logworker->hotUpdateSink(coutSinkHandle->sink().lock(), &ColorCoutSink::setWorkingScheme, settings);
 
    LOGF(INFO, "Hi log %d", 123);
    LOG(INFO) << "Test SLOG INFO";

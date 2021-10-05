@@ -24,7 +24,7 @@ namespace g3 {
       , log_directory_(log_directory)
       , log_prefix_backup_(log_prefix)
       //, outptr_(new std::ofstream)
-      , header_("\n\t\tLOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL THREAD_ID FILE->FUNCTION:LINE] message\n"
+      , header_("\n\t\tLOG format: YYYY/MM/DD hh:mm:ss uuu* LEVEL THREAD_ID FILE->FUNCTION:LINE] message\n"
                 "\t\t(uuu*: microseconds fractions of the seconds value)\n"
                 "\t\t(THREAD_ID is optional and is not displayed by default)\n\n")
       //, steady_start_time_(std::chrono::steady_clock::now())

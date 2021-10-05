@@ -82,7 +82,7 @@ namespace g3 {
       std::weak_ptr<internal::Sink<T>> sink() {
          // shared_ptr objects can be assigned to weak_ptr objects directly, 
          // but in order to assign a weak_ptr object to a shared_ptr it shall
-         // be done using member lock.
+         // be done using member lock or constructor.
          return _sink.lock();
       }
    };

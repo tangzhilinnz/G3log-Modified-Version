@@ -161,13 +161,16 @@ namespace g3 {
 
       // for test: hot update sink through pointer of SinkHandle<T> object
       template<typename T, typename AsyncCall, typename... Args>
-      void hotUpdateSink(SinkHandle<T>* p_sink_handle, AsyncCall func, Args&& ... args) {
-         if (nullptr != p_sink_handle) {
-            auto sink_handle_call_with_args = [p_sink_handle, func](auto&&... args) {
-               p_sink_handle->call(func, args...);
+      void hotUpdateSink(std::shared_ptr<internal::Sink<T>> sinkSPtr, AsyncCall func, Args&& ... args) {
+         // std::shared_ptr<T>::operator bool
+         // Checks if *this stores a non-null pointer, i.e. whether get() != nullptr.
+         // true if *this stores a pointer, false otherwise.
+         if (sinkSPtr) {
+            auto sink_async_call_with_args = [sinkSPtr, func](auto&&... args) {
+               sinkSPtr->async(func, args...);
             };
 
-            auto bg_hot_update_sink = std::bind(std::move(sink_handle_call_with_args),
+            auto bg_hot_update_sink = std::bind(std::move(sink_async_call_with_args),
                                                 std::forward<Args>(args)...);
 
             _impl._bg->send(MoveOnCopy(std::move(bg_hot_update_sink)));

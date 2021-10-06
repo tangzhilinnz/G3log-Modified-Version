@@ -50,7 +50,7 @@ namespace g3 {
 
 
    FileSink::~FileSink() {
-      std::string exit_msg {"g3log file shutdown at: "};
+      std::string exit_msg {"g3log file sink shutdown at: "};
       auto now = std::chrono::system_clock::now();
       // exit_msg.append(localtime_formatted(now, internal::time_formatted)).append("\n");
       exit_msg.append(localtime_formatted(now, { internal::date_formatted + " " + internal::time_formatted })).append("\n");

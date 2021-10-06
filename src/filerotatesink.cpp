@@ -49,7 +49,7 @@ namespace g3 {
 
 
    FileRotateSink::~FileRotateSink() {
-      std::string exit_msg{ "g3log file shutdown at: " };
+      std::string exit_msg{ "g3log file sink shutdown at: " };
       auto now = std::chrono::system_clock::now();
       exit_msg.append(g3::localtime_formatted(now, { g3::internal::date_formatted + " " + g3::internal::time_formatted })).append("\n");
       filestream() << exit_msg << std::flush;

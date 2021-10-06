@@ -878,13 +878,10 @@ namespace g3 {
       ColorCoutSink(const ColorCoutSink& other) = delete;
 
       static const LevelsAndSettings k_DEFAULT_SETTINGS;
-      LevelsAndSettings defaultSettings_;
-
-      LevelsWithAttributes gWorkingScheme_;
-
       std::ostream& stream_;
-
+      LevelsAndSettings defaultSettings_;
       LogMessage::LogDetailsFunc logDetailsFunc_;
+      LevelsWithAttributes gWorkingScheme_;
 
 #if defined(TERMCOLOR_TARGET_WINDOWS)
    public:

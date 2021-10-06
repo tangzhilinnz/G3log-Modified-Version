@@ -51,7 +51,7 @@ namespace g3 {
        * @param dir
        * @param file_name
        */
-      void expireArchives(const std::string& dir, const std::string& app_name, unsigned long max_log_count);
+      void expireArchives(const std::string& dir, const std::string& app_name, long max_log_count);
 
       /// @return all the found files in the directory that follow the expected log name pattern
       /// std::map<long: timestamp, std::string : name>

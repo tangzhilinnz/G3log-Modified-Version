@@ -340,8 +340,7 @@ namespace g3 {
        * @param dir
        * @param file_name
        */
-      // TODO, no need to check and record archiving time each entry through this func 
-      void expireArchives(const std::string& dir, const std::string& app_name, unsigned long max_log_count) {
+      void expireArchives(const std::string& dir, const std::string& app_name, long max_log_count) {
          std::map< std::pair<long, long>, std::string, Comparator > files;
          
          // Constructs the path from a character sequence 

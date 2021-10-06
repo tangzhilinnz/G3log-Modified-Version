@@ -153,8 +153,8 @@ using namespace termcolor::_internal;
    
    ColorCoutSink::ColorCoutSink(std::ostream& stream)
       : stream_(stream) 
-      , logDetailsFunc_(&LogMessage::DefaultLogDetailsToString) 
-      , defaultSettings_(k_DEFAULT_SETTINGS) {
+      , defaultSettings_(k_DEFAULT_SETTINGS) 
+      , logDetailsFunc_(&LogMessage::DefaultLogDetailsToString) {
 
       if (&stream_ != &std::cout && &stream_ != &std::cerr) {
          std::cerr << "illegal std::ostream object used to construct ColorCoutSink!!!" << std::endl;
@@ -180,8 +180,8 @@ using namespace termcolor::_internal;
 
    ColorCoutSink::ColorCoutSink(std::ostream& stream, const LevelsAndSettings& defaultSettings)
       : stream_(stream)
-      , logDetailsFunc_(&LogMessage::DefaultLogDetailsToString)
-      , defaultSettings_(defaultSettings) {
+      , defaultSettings_(defaultSettings) 
+      , logDetailsFunc_(&LogMessage::DefaultLogDetailsToString){
 
       if (&stream_ != &std::cout && &stream_ != &std::cerr) {
          std::cerr << "illegal std::ostream object used to construct ColorCoutSink!!!" << std::endl;
@@ -206,7 +206,7 @@ using namespace termcolor::_internal;
 
 
    ColorCoutSink::~ColorCoutSink() {
-      std::string exit_msg{ "g3log color cout sink shutdown at: " };
+      std::string exit_msg{ "g3log colorcout sink shutdown at: " };
       auto now = std::chrono::system_clock::now();
       exit_msg.append(g3::localtime_formatted(now, { g3::internal::date_formatted + " " + g3::internal::time_formatted })).append("\n");
       std::cerr << exit_msg << std::flush;

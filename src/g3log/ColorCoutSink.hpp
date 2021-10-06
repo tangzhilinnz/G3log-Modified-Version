@@ -11,6 +11,8 @@
 
 #pragma once
 
+#define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
+
 #include "g3log/logmessage.hpp"
 #include <iostream>
 #include <cstdio>
@@ -19,6 +21,7 @@
 #include <map>
 #include <utility>
 #include <stdexcept>
+#include <atomic>
 
 
 // ======================== Foreground Colors ==============================
@@ -92,9 +95,6 @@
 #elif defined(__unix__) || defined(__unix) || (defined(__APPLE__) && defined(__MACH__))
    #define TERMCOLOR_TARGET_POSIX
 #endif
-
-
-#define TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
 
 // If implementation has not been explicitly set, try to choose one based on
 // target platform.
@@ -900,6 +900,7 @@ namespace g3 {
       static WORD stdoutDefaultAttrs_;
       static WORD stderrDefaultAttrs_;
       static bool isVirtualTermSeqs_;
+      static std::atomic<bool> winSinkBuildFlag_;
 #endif
    };
 

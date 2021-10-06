@@ -15,6 +15,7 @@ using namespace termcolor::_internal;
    WORD ColorCoutSink::stdoutDefaultAttrs_ = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
    WORD ColorCoutSink::stderrDefaultAttrs_ = FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED;
    bool ColorCoutSink::isVirtualTermSeqs_ = false;
+   std::atomic<bool> ColorCoutSink::winSinkBuildFlag_{false};
 
    static Initialize _(ColorCoutSink::initWin); // make sure that global variable _ is initialized 
                                                 // after stdoutDefaultAttrs_ and stderrDefaultAttrs_
@@ -55,7 +56,7 @@ using namespace termcolor::_internal;
             if (hTerminal != INVALID_HANDLE_VALUE
                 && GetConsoleScreenBufferInfo(hTerminal, &info)) {
                stdoutDefaultAttrs_ = info.wAttributes;
-               std::cout << "std::cout done !!!" << stdoutDefaultAttrs_  << std::endl;
+               std::cout << "std::cout -> " << stdoutDefaultAttrs_  << std::endl;
             }
          }
 
@@ -66,15 +67,18 @@ using namespace termcolor::_internal;
             if (hTerminal != INVALID_HANDLE_VALUE
                 && GetConsoleScreenBufferInfo(hTerminal, &info)) {
                stderrDefaultAttrs_ = info.wAttributes;
-               std::cout << "std::cerr done !!!" << stderrDefaultAttrs_ << std::endl;
+               std::cout << "std::cerr -> " << stderrDefaultAttrs_ << std::endl;
             }
          }
 
 #if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
          isVirtualTermSeqs_ = enable_virtual_terminal_processing(stdout) &&
                               enable_virtual_terminal_processing(stderr);
+#else
+         isVirtualTermSeqs_ = false;
 #endif
-
+         std::cout << "isVirtualTermSeqs_ -> " << std::boolalpha 
+                   << isVirtualTermSeqs_ << std::noboolalpha << std::endl;
          std::cout << "ColorCoutSink::initWin done !!!" << std::endl;
       };
 
@@ -158,6 +162,19 @@ using namespace termcolor::_internal;
       }
 
       settingsToWorkingScheme(k_DEFAULT_SETTINGS, true);
+
+#if defined(TERMCOLOR_TARGET_WINDOWS)
+      if (!isVirtualTermSeqs_) {
+         // std::atomic<T>::exchange
+         // T exchange( T desired, std::memory_order order = std::memory_order_seq_cst ) noexcept;  
+         // atomically replaces the value of the atomic object and obtains the value held previously.
+         // The operation is read-modify-write operation. Memory is affected according to the value of order.
+         if (winSinkBuildFlag_.exchange(true)) {
+            std::cerr << "ColorCoutSink on Windows cannot have multiple instances!!!" << std::endl;
+            abort();
+         }
+      }
+#endif
    }
 
 
@@ -172,6 +189,19 @@ using namespace termcolor::_internal;
       }
       
       settingsToWorkingScheme(defaultSettings, true);
+
+#if defined(TERMCOLOR_TARGET_WINDOWS)
+      if (!isVirtualTermSeqs_) {
+         // std::atomic<T>::exchange
+         // T exchange( T desired, std::memory_order order = std::memory_order_seq_cst ) noexcept;  
+         // atomically replaces the value of the atomic object and obtains the value held previously.
+         // The operation is read-modify-write operation. Memory is affected according to the value of order.
+         if (winSinkBuildFlag_.exchange(true)) {
+            std::cerr << "ColorCoutSink on Windows cannot have multiple instances!!!" << std::endl;
+            abort();
+         }
+      }
+#endif
    }
 
 
@@ -235,7 +265,6 @@ using namespace termcolor::_internal;
                                    msg + reset + "\n" };
          stream_ << msgWithAttrs.c_str() << std::flush;
 #elif defined(TERMCOLOR_TARGET_WINDOWS)
-   #if defined(TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES)
          if (isVirtualTermSeqs_) {
             std::string msgWithAttrs{ attrs.bgColorEscSeqs_ +
                                       attrs.fgColorEscSeqs_ +
@@ -243,9 +272,8 @@ using namespace termcolor::_internal;
                                       msg + reset+ "\n"};
             stream_ << msgWithAttrs.c_str() << std::flush;
          }
-         else
-   #endif // TERMCOLOR_USE_ANSI_ESCAPE_SEQUENCES
-         {
+         else {
+
             HANDLE hTerminal = INVALID_HANDLE_VALUE;
 
             if (&stream_ == &std::cout)
@@ -258,7 +286,7 @@ using namespace termcolor::_internal;
             }
             else {
                SetConsoleTextAttribute(hTerminal, attrs.winAttributes_);
-               stream_ << msg /*+ "\n" << std::flush*/;
+               stream_ << msg;
                SetConsoleTextAttribute(hTerminal, getDefaultAttributes());
                stream_ << std::endl;
             }

@@ -105,10 +105,10 @@ namespace g3 {
 
 
 const LEVELS 
-   G3LOG_DEBUG {g3::kDebugValue, {"DEBUG"}}, 
-   INFO {g3::kInfoValue, {"INFO"}},
-   WARNING {g3::kWarningValue, {"WARNING"}},
-   FATAL {g3::kFatalValue, {"FATAL"}};
+   G3LOG_DEBUG {g3::kDebugValue, {/*"DEBUG"*/"DBG"}},
+   INFO {g3::kInfoValue, {/*"INFO"*/"INF"}},
+   WARNING {g3::kWarningValue, {/*"WARNING"*/"WRN"}},
+   FATAL {g3::kFatalValue, {/*"FATAL"*/"FAT"}};
 
 
 namespace g3 {

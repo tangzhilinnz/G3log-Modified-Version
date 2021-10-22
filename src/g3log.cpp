@@ -154,7 +154,7 @@ namespace g3 {
        *  LOG(...) calls can happen to a non-existing LogWorker.
        *  @param active MUST BE the LogWorker initialized for logging. If it is not then this call is just ignored
        *         and the logging continues to be active.
-       * @return true if the correct worker was given,. and shutDownLogging was called
+       * @return true if the correct worker was given or active is a nullptr, and shutDownLogging was called
        */
       bool shutDownLoggingForActiveOnly(LogWorker* active) {
          if (isLoggingInitialized() && nullptr != active && (active != g_logger_instance)) {

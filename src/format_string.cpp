@@ -847,7 +847,7 @@ fioFormat(
 
             if ((long long)ulongLongVal < 0)
             {
-                ulongLongVal = -ulongLongVal;
+                ulongLongVal = -(long long)ulongLongVal;
                 sign = '-';
             }
             base = DEC__;
@@ -882,7 +882,7 @@ fioFormat(
 
             if ((long long)ulongLongVal < 0)
             {
-                ulongLongVal = -ulongLongVal;
+                ulongLongVal = -(long long)ulongLongVal;
                 sign = '-';
             }
             base = DEC__;
@@ -1083,7 +1083,7 @@ fioFormat(
 
             if ((int)size < 0)	// strange value (Nan,Inf,..)
             {
-                size = -size;  // get string length
+                size = -(int)size;  // get string length
                 prec = oldprec;	 // old precision (not default)
 
                 doZeroPad = false;  // don't pad with zeroes
